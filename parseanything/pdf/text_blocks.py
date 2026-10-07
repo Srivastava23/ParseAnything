@@ -1,6 +1,6 @@
 import uuid
-from parseanything.interfaces import RegionExtractor, PageContext
-from parseanything.schema import Block, BlockType, Region
+from parseanything.interfaces import RegionExtractor, PageContext, Region
+from parseanything.schema import Block, BlockType
 from parseanything.registry import register_region_extractor, get_ocr_backend
 
 class TextRegionExtractor:

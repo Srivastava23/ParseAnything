@@ -40,3 +40,36 @@ class FormatParser(Protocol):
     extensions: set[str]
     mime: set[str]
     def parse(self, path: str, opts: Any) -> Document: ...
+
+class LLMBackend(Protocol):
+    name: str
+    def generate(self, prompt: str) -> str: ...
+    def generate_json(self, prompt: str, schema: Any) -> Any: ...
+
+class Embedder(Protocol):
+    name: str
+    def embed(self, text: str) -> list[float]: ...
+
+class Retriever(Protocol):
+    name: str
+    def search(self, question: str, k: int) -> list[Any]: ...
+
+class TTSBackend(Protocol):
+    name: str
+    def synthesize(self, text: str, output_path: str) -> dict[str, tuple[float, float]]: ...
+
+class Exporter(Protocol):
+    name: str
+    def export(self, doc: Document, output_path: str, options: Any) -> None: ...
+
+class SensitiveDetector(Protocol):
+    name: str
+    def detect(self, text: str) -> list[Any]: ...
+
+class Redactor(Protocol):
+    name: str
+    def redact(self, doc: Document, findings: list[Any]) -> Document: ...
+
+class AnomalyRule(Protocol):
+    name: str
+    def evaluate(self, doc: Document) -> list[Any]: ...

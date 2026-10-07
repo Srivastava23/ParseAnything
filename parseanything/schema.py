@@ -3,6 +3,8 @@ from typing import Optional, Literal
 from pydantic import BaseModel
 from parseanything.errors import ErrorCode, ParseError
 
+SCHEMA_VERSION = "1.0.0"
+
 class BlockType(str, Enum):
     HEADING = "heading"
     PARAGRAPH = "paragraph"
@@ -64,6 +66,13 @@ class ChartData(BaseModel):
     caption: Optional[str] = None
     values_estimated: bool = True
 
+class Provenance(BaseModel):
+    page: int
+    bbox: Optional[BBox] = None
+    source_type: str = ""
+    extractor: str = ""
+    confidence: float = 1.0
+
 class Block(BaseModel):
     id: str
     type: BlockType
@@ -81,6 +90,7 @@ class Block(BaseModel):
     flag_reason: Optional[str] = None
     source_extractor: str = ""
     meta: dict = {}
+    provenance: Optional[Provenance] = None
 
 class Page(BaseModel):
     number: int
@@ -104,3 +114,4 @@ class Document(BaseModel):
     errors: list[ParseError] = []
     stats: DocStats = DocStats()
     meta: dict = {}
+    analysis: dict = {}

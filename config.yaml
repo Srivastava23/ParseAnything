@@ -1,0 +1,39 @@
+# ParseAnything Global Configuration
+
+# --- Agent 1: Foundation, Layout, Platform ---
+core:
+  dpi: 200
+  workers: 4
+  confidence_threshold: 0.6
+  enable_cloud_fallbacks: false
+
+backends:
+  ocr: rapidocr
+  layout: docling
+  vlm: stub_vlm
+
+costs:
+  ocr_cost_per_page: 0.0015
+  vlm_cost_per_page: 0.005
+
+# --- Agent 2: LLM, Retrieval, Domain ---
+# (Agent 2 will fill these in)
+llm:
+  backend: ollama
+  model: llama3
+
+retrieval:
+  use_vector: false
+
+# --- Agent 3: Privacy, Export, Audio ---
+# (Agent 3 will fill these in)
+tts:
+  backend: kokoro
+
+redaction:
+  mode: mask
+
+# --- Agent 4: Intelligence and UI ---
+# (Agent 4 will fill these in)
+ui:
+  theme: light

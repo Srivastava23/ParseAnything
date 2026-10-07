@@ -22,8 +22,23 @@ def assemble_document(doc: Document):
         page.blocks = blocks_by_page.get(page.number, page.blocks)
         page.blocks = order_blocks(page.blocks, page)
         
+        import hashlib
         for idx, block in enumerate(page.blocks):
-            block.id = f"p{page.number}_b{idx}"
+            # Stable deterministic hash
+            bbox_str = f"{block.bbox.x0},{block.bbox.y0},{block.bbox.x1},{block.bbox.y1}" if block.bbox else "none"
+            id_str = f"{doc.source}_{page.number}_{bbox_str}_{block.type.value}"
+            block.id = hashlib.md5(id_str.encode()).hexdigest()[:12]
+            
+            # Fill provenance if not present
+            if not block.provenance:
+                from parseanything.schema import Provenance
+                block.provenance = Provenance(
+                    page=page.number,
+                    bbox=block.bbox,
+                    source_type=page.kind,
+                    extractor=block.source_extractor,
+                    confidence=block.confidence
+                )
             block.reading_order = global_reading_order
             global_reading_order += 1
             blocks_count += 1

@@ -34,3 +34,4 @@ def render_image_page(path: str, page_idx: int, dpi: int = 72) -> PageContext:
         kind="image"
     )
     return ctx
+ 

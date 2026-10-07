@@ -1,5 +1,5 @@
-from parseanything.interfaces import LayoutBackend, PageContext
-from parseanything.schema import Region, BBox
+from parseanything.interfaces import LayoutBackend, PageContext, Region
+from parseanything.schema import BBox
 from parseanything.registry import register_layout
 
 class RuleBasedLayoutBackend:

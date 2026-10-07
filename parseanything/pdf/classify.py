@@ -1,5 +1,5 @@
-from parseanything.interfaces import PageContext
-from parseanything.schema import BBox, Region
+from parseanything.interfaces import PageContext, Region
+from parseanything.schema import BBox
 
 def classify_page(ctx: PageContext) -> tuple[str, list[Region]]:
     """

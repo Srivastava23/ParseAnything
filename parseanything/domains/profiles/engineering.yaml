@@ -1,0 +1,34 @@
+name: engineering
+keywords:
+  - architecture diagram
+  - API documentation
+  - database schema
+  - configuration file
+  - incident report
+  - system design
+  - infrastructure
+  - DevOps
+  - deployment
+  - microservices
+  - software
+  - REST API
+schema:
+  type: object
+  properties:
+    system_name:
+      type: string
+    architecture_type:
+      type: string
+    technologies_used:
+      type: array
+      items:
+        type: string
+    endpoints:
+      type: array
+      items:
+        type: string
+    database_tables:
+      type: array
+      items:
+        type: string
+  required: [system_name]

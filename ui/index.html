@@ -824,8 +824,20 @@
         <label for="chk-redact" style="cursor: pointer;">Enable PII Redaction (Masks PAN, Aadhaar, etc.)</label>
       </div>
 
+      <!-- Domain Mode Dropdown -->
+      <div class="control-row" style="margin-top: 0.5rem; align-items: center; justify-content: space-between;">
+        <label for="sel-domain" style="cursor: pointer; font-weight: 600;">Domain Mode:</label>
+        <select id="sel-domain" style="padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid var(--card-border); background: var(--bg-color); color: var(--text);">
+          <option value="auto">Auto-Detect Domain</option>
+          <option value="general">General</option>
+          <option value="engineering">Engineering</option>
+          <option value="financial">Financial</option>
+          <option value="legal">Legal</option>
+        </select>
+      </div>
+
       <!-- Engine Stats -->
-      <div class="card-title" style="margin-top: 0.25rem; font-size: 0.85rem;">
+      <div class="card-title" style="margin-top: 1.25rem; font-size: 0.85rem;">
         📊 Real-Time Engine Stats
       </div>
       <div class="stats-grid">
@@ -838,12 +850,12 @@
           <div class="stat-value" id="stat-blocks">0</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">Latency</div>
-          <div class="stat-value" id="stat-time">0.00s</div>
+          <div class="stat-label">Domain Detected</div>
+          <div class="stat-value" id="stat-domain" style="text-transform: capitalize; color: var(--pink);">N/A</div>
         </div>
         <div class="stat-box">
-          <div class="stat-label">API Cloud Cost</div>
-          <div class="stat-value" id="stat-cost" style="color: var(--green);">$0.00</div>
+          <div class="stat-label">Latency</div>
+          <div class="stat-value" id="stat-time">0.00s</div>
         </div>
       </div>
 
@@ -869,6 +881,7 @@
         <div class="tabs">
           <button class="tab-btn active" type="button" onclick="switchTab('tab-md')">Clean Markdown</button>
           <button class="tab-btn" type="button" onclick="switchTab('tab-json')">Structured JSON</button>
+          <button class="tab-btn" type="button" onclick="switchTab('tab-domain')">Domain Extractor</button>
           <button class="tab-btn" type="button" onclick="switchTab('tab-prov')">Bounding-Box Provenance</button>
           <button class="tab-btn" type="button" onclick="switchTab('tab-anomalies')">Anomalies</button>
           <button class="tab-btn" type="button" onclick="switchTab('tab-qa')">Next Questions & Chat</button>
@@ -902,6 +915,14 @@ Features:
   "contract": "Pydantic V2",
   "timeout_watchdog": "60s (55s strict)"
 }</pre>
+      </div>
+
+      <!-- Domain Extractor Tab -->
+      <div class="tab-content" id="tab-domain">
+        <div class="viewer-toolbar">
+          <button class="toolbar-btn" type="button" onclick="copyViewerContent('domain-viewer')">Copy JSON</button>
+        </div>
+        <pre class="code-viewer" id="domain-viewer">Parse a document with a specific Domain Mode to see extracted domain data.</pre>
       </div>
 
       <!-- Provenance Tab -->
@@ -1081,8 +1102,10 @@ Features:
         try {
           const start = performance.now();
           const redactParam = document.getElementById('chk-redact').checked ? "&redact=true" : "";
+          const domainVal = document.getElementById('sel-domain').value;
+          const domainParam = domainVal ? "&domain=" + domainVal : "";
 
-          const res = await fetch(API_BASE + '/parse?format=json' + redactParam, {
+          const res = await fetch(API_BASE + '/parse?format=json' + redactParam + domainParam, {
             method: 'POST',
             body: formData
           });
@@ -1235,9 +1258,19 @@ Features:
       const stats = doc.stats || {};
       document.getElementById('stat-pages').textContent = stats.pages || (doc.pages ? doc.pages.length : 1);
       document.getElementById('stat-blocks').textContent = stats.blocks || countBlocks(doc);
-      document.getElementById('stat-time').textContent = (stats.elapsed_s ? stats.elapsed_s.toFixed(2) : elapsed) + "s";
-      document.getElementById('stat-cost').textContent = stats.est_cost_usd ? "$" + stats.est_cost_usd.toFixed(4) : "$0.00";
+      
+      const domainVal = (doc.analysis && doc.analysis.domain) ? doc.analysis.domain : 'general';
+      document.getElementById('stat-domain').textContent = domainVal;
+      
+      const domainViewer = document.getElementById('domain-viewer');
+      if (doc.analysis && doc.analysis.domain_data) {
+        domainViewer.textContent = JSON.stringify(doc.analysis.domain_data, null, 2);
+      } else {
+        domainViewer.textContent = "No domain-specific data extracted (domain is general).";
+      }
 
+      document.getElementById('stat-time').textContent = (stats.elapsed_s ? stats.elapsed_s.toFixed(2) : elapsed) + "s";
+      
       // Provenance
       const provList = document.getElementById('prov-list');
       provList.innerHTML = "";

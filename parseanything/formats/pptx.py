@@ -95,6 +95,57 @@ class PptxParser(FormatParser):
                         reading_order=block_idx
                     ))
                     block_idx += 1
+                
+                elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+                    blocks.append(Block(
+                        id=f"p{page_num}_b{block_idx}",
+                        type=BlockType.FIGURE,
+                        page=page_num,
+                        locator=f"pptx:slide{page_num}:picture{shape.shape_id}",
+                        content="[Embedded Picture]",
+                        bbox=bbox,
+                        reading_order=block_idx
+                    ))
+                    block_idx += 1
+                    
+                elif shape.has_chart:
+                    from parseanything.schema import ChartData, Series, Point
+                    chart = shape.chart
+                    series_list = []
+                    for s in chart.series:
+                        points = [Point(x=str(idx), y=float(val) if val is not None else 0.0) for idx, val in enumerate(s.values)]
+                        series_list.append(Series(name=s.name or "Series", points=points))
+                    
+                    chart_data = ChartData(
+                        chart_type=str(chart.chart_type),
+                        title=chart.chart_title.text_frame.text if chart.has_title else None,
+                        series=series_list,
+                        values_estimated=False
+                    )
+                    
+                    blocks.append(Block(
+                        id=f"p{page_num}_b{block_idx}",
+                        type=BlockType.CHART,
+                        page=page_num,
+                        locator=f"pptx:slide{page_num}:chart{shape.shape_id}",
+                        chart=chart_data,
+                        bbox=bbox,
+                        reading_order=block_idx
+                    ))
+                    block_idx += 1
+
+            if slide.has_notes_slide:
+                notes_text = slide.notes_slide.notes_text_frame.text.strip()
+                if notes_text:
+                    blocks.append(Block(
+                        id=f"p{page_num}_b{block_idx}",
+                        type=BlockType.FOOTNOTE,
+                        page=page_num,
+                        locator=f"pptx:slide{page_num}:notes",
+                        content=notes_text,
+                        reading_order=block_idx
+                    ))
+                    block_idx += 1
 
             page.blocks = blocks
             doc.pages.append(page)

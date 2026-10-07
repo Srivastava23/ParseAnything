@@ -1,6 +1,6 @@
 import os
 from parseanything.schema import ChartData, Series, Point
-from parseanything.registry import register_vlm_backend
+from parseanything.registry import register_vlm
 
 class GeminiVLMBackend:
     name = "vlm_gemini"
@@ -49,4 +49,4 @@ class GeminiVLMBackend:
             return None
 
 backend = GeminiVLMBackend()
-register_vlm_backend(backend)
+register_vlm(backend)

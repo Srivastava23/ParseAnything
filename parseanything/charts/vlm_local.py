@@ -1,7 +1,7 @@
 import os
 import requests
 from parseanything.schema import ChartData, Series, Point
-from parseanything.registry import register_vlm_backend
+from parseanything.registry import register_vlm
 
 class LocalVLMBackend:
     name = "vlm_local"
@@ -52,4 +52,4 @@ class LocalVLMBackend:
             return None
 
 backend = LocalVLMBackend()
-register_vlm_backend(backend)
+register_vlm(backend)

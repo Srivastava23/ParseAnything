@@ -1225,7 +1225,10 @@ Upload any document on the left panel to begin live deterministic extraction.
           <div id="chat-history" class="chat-stream"></div>
 
           <div class="suggestions-section">
-            <div class="section-title">💡 Suggested Next Questions</div>
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>💡 Suggested Next Questions</span>
+              <button class="btn btn-secondary" type="button" onclick="document.getElementById('chat-input').focus()" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; width: auto;">🔍 Search</button>
+            </div>
             <div id="qa-list" style="display: flex; flex-direction: column; gap: 0.55rem;">
                Waiting for document...
             </div>

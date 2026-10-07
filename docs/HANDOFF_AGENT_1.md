@@ -1,42 +1,44 @@
-# Handoff: Agent 1 (Phase 0 Complete)
+# Handoff: Agent 1 (Phase 1 and 10 Complete)
 
 ## 1. DONE
-- **Bug Fix**: Fixed `ImportError` for `Region` by correctly importing it from `parseanything.interfaces` instead of `schema` inside `parseanything/pdf/layout.py`, `text_blocks.py`, and `classify.py`.
-- **Smoke Test**: Added `tests/test_imports.py` to recursively import all modules. Proven by `python -m pytest tests/test_imports.py` which passes cleanly.
-- **Additive Schema**: 
-  - Added `SCHEMA_VERSION = "1.0.0"`.
-  - Added `Block.id` (stable deterministic hash).
-  - Added `Provenance` class and attached `Block.provenance`.
-  - Added `Document.analysis` dictionary.
-  - Assigned IDs deterministically inside `parseanything/core/assemble.py` based on `doc.source + page + bbox + type`.
-- **Protocols & Registry**: Published `LLMBackend`, `Embedder`, `Retriever`, `TTSBackend`, `Exporter`, `SensitiveDetector`, `Redactor`, and `AnomalyRule` in `parseanything/interfaces.py`. Created corresponding registries in `parseanything/registry.py`.
-- **Initialization**: Wrapped module imports in `try/except ImportError: pass` in `parseanything/__init__.py`.
-- **Configuration**: Set up `config.yaml` skeleton and refactored `parseanything/config.py` to use `pydantic-settings`.
-- **Dependencies**: Added optional extras (`[project.optional-dependencies]`) in `pyproject.toml` for layout, llm, retrieval, tts, and sensitive.
+- **Phase 0 (Foundation)**: Schema changes, module imports, protocol definitions, and `config.yaml` with `pydantic-settings` are all live.
+- **Phase 1 (Layout Upgrade)**:
+  - Built `DoclingLayoutBackend` that leverages Docling's layout predictor (dynamically loaded). Gracefully degrades if unavailable.
+  - Improved `RuleBasedLayoutBackend` to slice digital PDF pages vertically into distinct text blocks using `pdfium` bounding boxes instead of returning a single full-page block.
+  - Updated `TableRegionExtractor` to use `pdfplumber` for digital PDFs and `transformers` (Table Transformer) for image-based PDFs, cleanly failing over to basic OCR logic if libraries are missing.
+  - Added a benchmark script at `scripts/benchmark_layout.py` to compare region outputs and speeds across backends.
+- **Phase 10 (FastAPI and CLI Server)**:
+  - Created `parseanything/api/server.py` containing a FastAPI app with endpoints for `/parse`, `/jobs/{job_id}`, `/ask`, `/trace`, and others. Implemented background job execution for long-running parses.
+  - Wired Uvicorn into `parseanything/cli/main.py`.
 
 ## 2. NOT DONE / KNOWN ISSUES
-- Phase 1 (Layout Upgrade) and Phase 10 (FastAPI/CLI) are untouched. They will be completed during my next shift.
-- The `try/except` in `__init__.py` dynamically catches imports, but if `parseanything.formats.pptx` depends on `python-pptx`, the missing dependency will fail gracefully without crashing the whole application, as per the contract.
+- The UI (index.html) is currently a static file and is awaiting Agent 4's logic to fetch data from the FastAPI endpoints.
+- SQLite job storage in the API is currently using a simple in-memory dict `_jobs`. Once Phase 2 SQLite logic lands, the jobs dictionary can be mapped to a real SQLite database if persistence is needed.
 
 ## 3. HOW TO USE
-- To test the current build, run:
+- To run the CLI parser:
   ```bash
-  pip install -e .
-  python -m pytest tests/test_imports.py
+  python parseanything/cli/main.py parse sample_test.pdf --out output_dir
   ```
-- To configure, edit `config.yaml` at the root directory. Options are loaded automatically using `pydantic-settings`.
-- Agents can install their specific dependencies via extras: `pip install -e .[llm,retrieval,tts,sensitive]`.
+- To run the FastAPI server:
+  ```bash
+  python parseanything/cli/main.py serve --port 8000
+  ```
+- To run the layout backend benchmark:
+  ```bash
+  python scripts/benchmark_layout.py sample_test.pdf
+  ```
 
 ## 4. FOR THE NEXT AGENT (AGENTS 2, 3, 4)
-The Phase 0 contract is now live and pushed to `main`.
-- **Agent 2**: You can begin Phase 2 (LLM, Retrieval, Citations, Domain). Use the `LLMBackend`, `Embedder`, and `Retriever` protocols defined in `interfaces.py`. Add your settings to the `[llm]` and `[retrieval]` blocks in `config.yaml`.
-- **Agent 3**: You can begin Phase 4 and 9 (Privacy, Export, TTS). Implement `SensitiveDetector`, `Redactor`, `Exporter`, and `TTSBackend`. Add settings under the `[tts]` and `[redaction]` blocks.
-- **Agent 4**: You can begin Phase 5 and 7 (Anomaly detection, Charts). Implement `AnomalyRule` protocols. Wait for Agent 2 to finish retrieval before doing Phase 8.2 (Predictive questions).
-**Note**: Build against the interfaces in `interfaces.py` and register your classes in `registry.py` (e.g., `register_llm`).
+My work is complete and pushed to `main`! 
+You have all the stubs, protocols, fallbacks, and backend wiring needed to execute your tasks.
+- **Agent 2**: Begin Phase 2 (LLM, Retrieval).
+- **Agent 3**: Begin Phase 4 and 9 (Privacy, Export, TTS).
+- **Agent 4**: Begin Phase 5 and 7 (Anomaly detection, Charts) and then complete the JS logic in the UI connecting to the `/parse` and `/jobs/{job_id}` endpoints.
 
 ## 5. Message to Human
-Agent 1 here! I have successfully completed Phase 0. The import bug has been resolved, all new protocol interfaces have been established, and the `pydantic-settings` schema is live alongside `config.yaml`. The core schema has been additively updated with deterministic `Block.id`s, `Provenance`, and an `analysis` dict. The code has been tested and pushed to the `main` branch. 
+Agent 1 here! I have successfully completed Phase 1 (Layout Upgrades) and Phase 10 (FastAPI endpoints). The codebase is fully capable of processing documents, falling back across layout models gracefully, and serving jobs asynchronously via FastAPI. Everything has been pushed to `main`.
 
-**Unresolved REQUESTS.md**: None so far.
+**Unresolved REQUESTS.md**: None.
 
-The Phase 0 contract is live. Let me know when you'd like me to start Phase 1.
+I will now wait for Agents 2, 3, and 4 to finish their parallel shifts. Call me back when it's time to run the final integration and end-to-end tests!

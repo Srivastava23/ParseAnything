@@ -25,6 +25,9 @@ class XlsxParser(FormatParser):
         for sheet_name in wb.sheetnames:
             sheet = wb[sheet_name]
             page = Page(number=page_idx, width=0, height=0, kind="virtual")
+            meta = {}
+            if sheet.sheet_state != 'visible':
+                meta['hidden'] = True
             
             # Sheet Title
             page.blocks.append(Block(
@@ -33,7 +36,8 @@ class XlsxParser(FormatParser):
                 page=page_idx,
                 content=sheet_name,
                 level=1,
-                reading_order=block_idx
+                reading_order=block_idx,
+                meta=meta
             ))
             block_idx += 1
             

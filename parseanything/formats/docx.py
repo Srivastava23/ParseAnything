@@ -29,6 +29,16 @@ class DocxParser(FormatParser):
         from docx.text.paragraph import Paragraph
         from docx.table import Table
 
+        for section in docx_doc.sections:
+            for p in section.header.paragraphs:
+                if p.text.strip():
+                    blocks.append(Block(id=f"p1_b{block_idx}", type=BlockType.HEADER, page=1, locator=f"docx:header:{block_idx}", content=p.text.strip(), reading_order=block_idx))
+                    block_idx += 1
+            for p in section.footer.paragraphs:
+                if p.text.strip():
+                    blocks.append(Block(id=f"p1_b{block_idx}", type=BlockType.FOOTER, page=1, locator=f"docx:footer:{block_idx}", content=p.text.strip(), reading_order=block_idx))
+                    block_idx += 1
+
         for child in docx_doc.element.body:
             if isinstance(child, CT_P):
                 p = Paragraph(child, docx_doc)

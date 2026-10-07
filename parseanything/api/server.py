@@ -65,10 +65,26 @@ def get_job_status(job_id: str):
         error=job.get("error")
     )
 
-# Stubs for other endpoints required by Phase 10
-@app.post("/ask")
-def ask_endpoint(): return {"status": "not_implemented"}
+class AskRequest(BaseModel):
+    job_id: str
+    question: str
 
+@app.post("/ask")
+def ask_endpoint(req: AskRequest):
+    if req.job_id not in _jobs:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    job = _jobs[req.job_id]
+    if job["status"] != "completed" or not job.get("result"):
+        raise HTTPException(status_code=400, detail="Document not fully parsed yet")
+        
+    from parseanything.schema import Document
+    doc = Document(**job["result"])
+    opts = Options()
+    
+    from parseanything.retrieval.answer import ask_question
+    ans = ask_question(doc, req.question, opts)
+    return ans.model_dump()
 @app.post("/trace")
 def trace_endpoint(): return {"status": "not_implemented"}
 

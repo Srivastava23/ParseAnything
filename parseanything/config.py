@@ -17,10 +17,22 @@ class CostOptions(BaseModel):
     ocr_cost_per_page: float = 0.0015
     vlm_cost_per_page: float = 0.005
 
+class LLMOptions(BaseModel):
+    backend: str = "ollama"
+    model: str = "llama3"
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
+
+class RetrievalOptions(BaseModel):
+    use_vector: bool = False
+
 class Options(BaseSettings):
     core: CoreOptions = Field(default_factory=CoreOptions)
     backends: BackendOptions = Field(default_factory=BackendOptions)
     costs: CostOptions = Field(default_factory=CostOptions)
+    llm: LLMOptions = Field(default_factory=LLMOptions)
+    retrieval: RetrievalOptions = Field(default_factory=RetrievalOptions)
+
     
     # Backwards compatibility properties
     @property
@@ -41,6 +53,10 @@ class Options(BaseSettings):
     def ocr_cost_per_page(self): return self.costs.ocr_cost_per_page
     @property
     def vlm_cost_per_page(self): return self.costs.vlm_cost_per_page
+    @property
+    def llm_backend(self): return self.llm.backend
+    @property
+    def llm_model(self): return self.llm.model
 
     model_config = SettingsConfigDict(yaml_file='config.yaml', yaml_file_encoding='utf-8', extra='ignore')
 

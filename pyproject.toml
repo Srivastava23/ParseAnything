@@ -31,7 +31,7 @@ requires-python = ">=3.11"
 
 [project.optional-dependencies]
 layout = ["docling"]
-llm = ["ollama"]
+llm = ["ollama", "openai"]
 retrieval = ["sqlite-vec", "fastembed"]
 tts = ["kokoro"]
 sensitive = ["presidio-analyzer", "presidio-anonymizer", "spacy", "detect-secrets"]

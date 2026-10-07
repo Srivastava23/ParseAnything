@@ -1,35 +1,32 @@
-# Handoff: Agent 2
+# Phase 2 Completion - Agent 2
 
-## Status: Phase 1 Complete
+## 1. DONE
+- Implemented `OllamaLLMBackend` and `OpenAILLMBackend` in `parseanything/llm/backends.py`.
+- Built `SQLiteRetriever` in `parseanything/retrieval/store.py` providing SQLite FTS5 search with section path tree building.
+- Added optional `fastembed` integration in `parseanything/retrieval/store.py` (`FastEmbedder`).
+- Built the Answer generation and validation layer in `parseanything/retrieval/answer.py`.
+- Exposed `/ask` endpoint in `parseanything/api/server.py`.
+- Added tests for `SQLiteRetriever` in `tests/test_retrieval.py` and passed them.
+- Updated `pyproject.toml` and `config.py`/`config.yaml` with the necessary optional dependencies and configurations.
 
-**To: Agent 3 and Agent 4**
+## 2. NOT DONE / KNOWN ISSUES
+- The `/ask` endpoint accesses the global in-memory job dictionary from the server.
+- RRF merging of BM25 and vector scores is implemented but can be tuned further.
+- Did not start Phase 3 (Citations and Trace), Phase 6 (Domain modes), or Phase 8.3 (Simple English mode) as per instructions to stop and wait for review after Phase 2.
 
-Agent 2 has completed the PDF and Image parsing pipelines, including the OCR integrations, page rendering, layout fallback, and text block extraction. The foundational pipeline for basic reading and extraction of documents is in place.
+## 3. HOW TO USE
+- In `config.yaml`, ensure `llm.backend` is set to `ollama` or `openai`.
+- Post to `http://localhost:8000/ask` with JSON `{"job_id": "...", "question": "..."}` to run RAG.
+- To use embeddings, run `pip install .[retrieval]` and set `retrieval.use_vector: true` in config.
 
-### What has been implemented:
-1. **PDF Rendering (`pdf/render.py`):**
-   - Implemented `get_page_count(path)` and `render_page(path, page_idx, dpi)` using `pypdfium2`.
-   - Returns a `PageContext` containing the rendered PIL image and the original `pdfium.PdfPage` to allow down-stream extractors to extract digital text.
-   - Automatically intercepts single image files and passes them to the `imageparse` pipeline instead of throwing PDF errors.
-2. **Page Classification (`pdf/classify.py`):**
-   - Determines if a page is `digital`, `scanned`, or `mixed` by attempting to extract embedded text using `pypdfium2`.
-3. **OCR Backends (`ocr/`):**
-   - Implemented `RapidOCRBackend` using `rapidocr-onnxruntime` and `TesseractOCRBackend` using `pytesseract`.
-   - Both strictly adhere to the `OCRBackend` interface.
-   - Registered them in the central registry upon import in `__init__.py`.
-4. **Layout Detection (`pdf/layout.py`):**
-   - Built a `RuleBasedLayoutBackend` as a fallback. Returns text regions based on page dimensions so that `RegionExtractor` can process the page. Registered via `register_layout`.
-5. **Text Block Extraction (`pdf/text_blocks.py`):**
-   - Implemented `TextRegionExtractor` for regions labeled `text`, `title`, `list`, `caption`, `footnote`, `paragraph`, and `heading`.
-   - Extracts embedded text directly for digital pages to skip OCR, but seamlessly falls back to OCR backends (RapidOCR/Tesseract) for scanned images.
-6. **Reading Order (`pdf/reading_order.py`):**
-   - Implemented `order_blocks(blocks, page)` which separates headers/footers based on vertical thresholds and applies a basic top-down, left-right spatial sorting (approximate XY-cut) to ensure sensible reading flow for columns.
-7. **Image Pipeline (`imageparse/pipeline.py`):**
-   - Integrated logic to handle `png`, `jpg`, `jpeg`, etc.
-   - Added deskew and denoise preprocessing stubs.
+## 4. FOR THE NEXT AGENT
+- Continue with Phase 3 (Citation resolver, AnswerTrace object, CLI implementation).
+- The `ask_question` function currently returns block IDs in `[B:id]` format, which you will need for citation resolution.
+- Phase 6 (Domain modes) and Phase 8.3 (Simple English mode) are also pending.
 
-### Notes for next Agents:
-- **Agent 3 (Complex Blocks):** The `RuleBasedLayoutBackend` currently returns a single full-page text block. If you implement a deep layout model (like Docling), ensure it registers itself and overrides the default. You can now build table and chart extractors knowing that `ctx.pdf_page` is available for digital text extraction.
-- **Agent 4 (Other Formats):** If you route images or PDFs to the orchestrator, they will now be successfully processed into `Block` structures!
-
-All tests/work was pushed on `agent-2/main-work` branch. Good luck!
+## 5. Message to Human
+Agent 2 has successfully completed Phase 2!
+The LLM integration (Ollama and OpenAI), SQLite FTS5 Retriever with section paths, and the validated Answer service are now live. 
+The `/ask` API endpoint has been implemented and basic retrieval tests pass.
+No unresolved items in `REQUESTS.md`.
+Please review the changes and let me know if we can proceed to Phase 3.

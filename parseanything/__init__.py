@@ -10,6 +10,9 @@ import parseanything.pdf.text_blocks
 import parseanything.tables.extract
 import parseanything.charts.extract
 import parseanything.math.extract
+import parseanything.formats.docx
+import parseanything.formats.xlsx
+import parseanything.formats.misc
 def _do_parse(path_or_bytes: Any, options: Options, extension_hint: str = "") -> Document:
     from parseanything.core.sniff import sniff_format
     from parseanything.core.router import route

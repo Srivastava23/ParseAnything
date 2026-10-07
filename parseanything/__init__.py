@@ -7,6 +7,9 @@ import parseanything.ocr.rapidocr_backend
 import parseanything.ocr.tesseract_backend
 import parseanything.pdf.layout
 import parseanything.pdf.text_blocks
+import parseanything.tables.extract
+import parseanything.charts.extract
+import parseanything.math.extract
 def _do_parse(path_or_bytes: Any, options: Options, extension_hint: str = "") -> Document:
     from parseanything.core.sniff import sniff_format
     from parseanything.core.router import route

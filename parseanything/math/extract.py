@@ -1,9 +1,9 @@
 import uuid
 from parseanything.interfaces import RegionExtractor, PageContext
 from parseanything.schema import Block, BlockType, Region
-from parseanything.registry import register_region_extractor, get_vlm_backend, get_ocr_backend
+from parseanything.registry import register_region_extractor, get_ocr_backend
 
-class EquationRegionExtractor:
+class EquationRegionExtractor(RegionExtractor):
     name = "equation_extractor"
     handles = {"equation", "math"}
 
@@ -15,23 +15,33 @@ class EquationRegionExtractor:
             
         latex_code = None
         content = ""
+        flagged = False
+        flag_reason = None
+        meta = {}
         
-        for vlm_name in ["gpt4v", "gemini", "stub_vlm"]:
-            vlm = get_vlm_backend(vlm_name)
-            if vlm and crop:
-                try:
-                    latex_code = vlm.read_equation(crop)
-                    if latex_code:
-                        break
-                except Exception:
-                    pass
+        # 1. Try pix2tex (LaTeX-OCR)
+        if crop:
+            try:
+                from pix2tex.cli import LatexOCR
+                model = LatexOCR()
+                latex_code = model(crop)
+            except ImportError:
+                meta["BACKEND_UNAVAILABLE"] = "pix2tex (LaTeX-OCR) not installed."
+            except Exception as e:
+                meta["BACKEND_ERROR"] = f"pix2tex error: {str(e)}"
                     
+        # 2. OCR Fallback
         if not latex_code and crop:
             ocr = get_ocr_backend("rapidocr") or get_ocr_backend("tesseract")
             if ocr:
                 lines = ocr.ocr(crop)
                 content = "\n".join([line.text for line in lines])
+                flagged = True
+                flag_reason = "Math LaTeX extraction failed, fell back to standard OCR."
                 
+        if latex_code:
+            content = f"$${latex_code}$$"
+            
         block = Block(
             id=str(uuid.uuid4()),
             type=BlockType.EQUATION,
@@ -40,6 +50,9 @@ class EquationRegionExtractor:
             latex=latex_code,
             content=content,
             confidence=region.score,
+            flagged=flagged,
+            flag_reason=flag_reason,
+            meta=meta,
             source_extractor=self.name
         )
         return [block]

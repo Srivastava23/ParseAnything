@@ -12,7 +12,10 @@
 ## Architecture & Setup
 - **Core Platform:** Agent 1 has laid down the pipeline contract, registry, CLI, and API (`/parse`).
 - **PDF Pipeline:** Agent 2 handles rendering, OCR, layout detection, and reading order mapping.
-- **Table/Chart/Math Extractors:** Agent 3 handles complex data block extraction (including fallback VLM paths for charts).
+- **Table/Chart/Math Extractors:** Agent 3 handles complex data block extraction.
+  - *Tables*: Extracts grid cells, handles `rowspan`/`colspan`, and merges tables across pages. Validates financial OCR numbers.
+  - *Charts*: Leverages local VLMs or Gemini to extract raw data from charts.
+  - *Math*: Uses `pix2tex` to convert images of equations into precise LaTeX.
 - **Format Parsers & Renderers:** Agent 4 handles DOCX, PPTX, XLSX, legacy formats, and the UI demo.
 
 ### Quick Start

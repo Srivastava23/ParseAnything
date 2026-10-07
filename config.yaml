@@ -25,13 +25,16 @@ llm:
 retrieval:
   use_vector: false
 
-# --- Agent 3: Privacy, Export, Audio ---
-# (Agent 3 will fill these in)
-tts:
-  backend: kokoro
-
-redaction:
-  mode: mask
+# --- Agent 3: Tables, Charts, Math ---
+tables:
+  backend: pdfplumber
+  
+charts:
+  vlm_local_url: http://localhost:11434/api/generate
+  enable_gemini_vlm: false
+  
+math:
+  backend: pix2tex
 
 # --- Agent 4: Intelligence and UI ---
 # (Agent 4 will fill these in)

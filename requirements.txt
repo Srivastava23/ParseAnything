@@ -15,3 +15,11 @@ onnxruntime>=1.17.0
 pyclipper>=1.2.1
 shapely>=2.0.0
 opencv-python>=4.5.0
+# Agent 3: Tables, Charts, Math (Optional)
+# pdfplumber
+# transformers
+# torch
+# torchvision
+# pix2tex
+# google-generativeai
+# requests

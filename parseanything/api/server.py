@@ -20,6 +20,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import os
+from fastapi.responses import HTMLResponse
+
+_root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_ui_path = os.path.join(_root_dir, "ui", "index.html")
+
+@app.get("/", response_class=HTMLResponse)
+@app.get("/ui", response_class=HTMLResponse)
+def index():
+    if os.path.exists(_ui_path):
+        with open(_ui_path, "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h1>ParseAnything API is running</h1>"
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 # Simple in-memory job storage for SSE / BackgroundTasks
 # In a real production setup, this would be SQLite + Redis/Celery
 _jobs = {}
@@ -71,6 +89,15 @@ async def parse_endpoint(background_tasks: BackgroundTasks, file: UploadFile = F
         if target_domain != "general":
             doc.analysis["domain_data"] = extract_domain_schema(doc, target_domain)
             
+    # Auto-detect PII to enforce redaction
+    import re
+    full_text = " ".join([b.content for p in doc.pages for b in p.blocks if getattr(b, 'content', None)])
+    has_pii = bool(re.search(r'\b\d{4}\s?\d{4}\s?\d{4}\b', full_text) or re.search(r'\b[A-Z]{5}[0-9]{4}[A-Z]{1}\b', full_text))
+    
+    if has_pii or doc.analysis.get("domain") == "kyc":
+        redact = True
+        doc.analysis["auto_redacted"] = True
+
     if redact:
         from parseanything.registry import get_redactor
         redactor = get_redactor("pipeline")
@@ -123,6 +150,17 @@ def ask_endpoint(req: AskRequest):
     return ans.model_dump()
 @app.post("/trace")
 def trace_endpoint(): return {"status": "not_implemented"}
+
+@app.post("/to-markdown")
+def to_markdown_endpoint(doc: dict = Body(...)):
+    from parseanything.schema import Document
+    from parseanything.render.markdown import to_markdown
+    document = Document(**doc)
+    try:
+        md_text = to_markdown(document)
+        return StreamingResponse(iter([md_text]), media_type="text/markdown")
+    except Exception as e:
+        return StreamingResponse(iter([f"Error: {str(e)}"]), media_type="text/markdown")
 
 @app.post("/anomalies")
 def anomalies_endpoint(doc: dict = Body(...)):
@@ -197,6 +235,38 @@ class AnswerRequest(BaseModel):
     doc: dict
     question: str
 
+@app.post("/analyze-anomalies")
+def analyze_anomalies_endpoint(doc: dict = Body(...)):
+    from parseanything.schema import Document
+    from parseanything.config import Options
+    from parseanything.registry import get_llm_backend
+    opts = Options()
+    llm = get_llm_backend("ollama")
+    if not llm:
+        from parseanything.llm.backends import OllamaLLMBackend
+        llm = OllamaLLMBackend(opts)
+        
+    document = Document(**doc)
+    anomalies = document.analysis.get("anomalies", [])
+    if not anomalies:
+        return JSONResponse(content={"summary": "No anomalies detected."})
+        
+    prompt = "Summarize the following document anomalies clearly and concisely:\\n"
+    for a in anomalies:
+        prompt += f"- {a.get('severity', 'unknown').upper()}: {a.get('explanation', '')}\\n"
+        
+    from pydantic import BaseModel
+    class AnomalySummary(BaseModel):
+        summary: str
+        
+    try:
+        res = llm.generate_json(prompt, AnomalySummary)
+        summary = res.summary
+    except Exception as e:
+        summary = f"Error generating summary: {str(e)}"
+        
+    return JSONResponse(content={"summary": summary})
+
 @app.post("/answer")
 def answer_endpoint(req: AnswerRequest):
     from parseanything.schema import Document
@@ -213,11 +283,11 @@ def tts_endpoint(background_tasks: BackgroundTasks, doc: dict = Body(...)):
     import os
     from parseanything.schema import Document
     from parseanything.registry import get_tts_backend
-    from parseanything.tts.pyttsx3_backend import extract_readable_text
+    from parseanything.tts.gtts_backend import extract_readable_text
     from fastapi.responses import FileResponse
     
     document = Document(**doc)
-    tts_backend = get_tts_backend("pyttsx3")
+    tts_backend = get_tts_backend("gtts")
     if not tts_backend:
         raise HTTPException(status_code=500, detail="TTS Backend not found")
         
@@ -225,7 +295,7 @@ def tts_endpoint(background_tasks: BackgroundTasks, doc: dict = Body(...)):
     if not text.strip():
         raise HTTPException(status_code=400, detail="No readable text found in document")
         
-    fd, temp_path = tempfile.mkstemp(suffix=".wav")
+    fd, temp_path = tempfile.mkstemp(suffix=".mp3")
     os.close(fd)
     
     tts_backend.synthesize(text, temp_path)
@@ -235,4 +305,4 @@ def tts_endpoint(background_tasks: BackgroundTasks, doc: dict = Body(...)):
             os.unlink(temp_path)
             
     background_tasks.add_task(cleanup)
-    return FileResponse(temp_path, media_type="audio/wav")
+    return FileResponse(temp_path, media_type="audio/mpeg")

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from parseanything.schema import BBox, Block, ChartData, Document, Region
 
 class PageContext:
-    def __init__(self, page_number: int, width: float, height: float, image: Any, scale: float, pdf_page: Optional[Any], kind: str):
+    def __init__(self, page_number: int, width: float, height: float, image: Any, scale: float, pdf_page: Optional[Any], kind: str, source_path: str = ""):
         self.page_number = page_number
         self.width = width
         self.height = height
@@ -11,6 +11,7 @@ class PageContext:
         self.scale = scale
         self.pdf_page = pdf_page
         self.kind = kind
+        self.source_path = source_path
 
 class OCRLine(BaseModel):
     text: str

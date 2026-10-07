@@ -36,7 +36,8 @@ def render_page(path: str, page_idx: int, dpi: int = 72) -> PageContext:
         image=image,
         scale=scale,
         pdf_page=page,
-        kind="digital"
+        kind="digital",
+        source_path=path
     )
     ctx._pdf = pdf 
     return ctx

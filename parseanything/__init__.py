@@ -14,7 +14,13 @@ for mod in [
     "parseanything.formats.docx",
     "parseanything.formats.xlsx",
     "parseanything.formats.pptx",
-    "parseanything.formats.misc"
+    "parseanything.formats.misc",
+    "parseanything.sensitive.detect",
+    "parseanything.sensitive.redact",
+    "parseanything.anomalies",
+    "parseanything.exporters",
+    "parseanything.tts",
+    "parseanything.domains"
 ]:
     try:
         __import__(mod)

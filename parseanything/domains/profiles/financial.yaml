@@ -1,0 +1,24 @@
+name: financial
+keywords:
+  - EBITDA
+  - balance sheet
+  - income statement
+  - cash flow
+  - revenue
+  - gross margin
+  - operating expenses
+  - fiscal year
+schema:
+  type: object
+  properties:
+    company_name:
+      type: string
+    fiscal_year:
+      type: string
+    total_revenue:
+      type: number
+    ebitda:
+      type: number
+    currency:
+      type: string
+  required: [company_name, total_revenue]

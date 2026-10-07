@@ -1,0 +1,24 @@
+name: legal
+keywords:
+  - plaintiff
+  - defendant
+  - whereas
+  - jurisdiction
+  - hereby
+  - liability
+  - indemnification
+  - court of
+schema:
+  type: object
+  properties:
+    document_type:
+      type: string
+    parties_involved:
+      type: array
+      items:
+        type: string
+    effective_date:
+      type: string
+    jurisdiction:
+      type: string
+  required: [document_type, parties_involved]

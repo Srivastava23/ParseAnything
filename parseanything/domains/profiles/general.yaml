@@ -1,0 +1,12 @@
+name: general
+keywords: []
+schema:
+  type: object
+  properties:
+    summary:
+      type: string
+    key_topics:
+      type: array
+      items:
+        type: string
+  required: [summary]

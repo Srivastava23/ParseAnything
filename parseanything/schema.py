@@ -73,6 +73,19 @@ class Provenance(BaseModel):
     extractor: str = ""
     confidence: float = 1.0
 
+class SensitiveFinding(BaseModel):
+    type: str
+    block_id: str
+    start: int
+    end: int
+    confidence: float
+
+class Anomaly(BaseModel):
+    rule: str
+    severity: str
+    explanation: str
+    block_ids: list[str]
+
 class Block(BaseModel):
     id: str
     type: BlockType

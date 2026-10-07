@@ -102,6 +102,14 @@ def get_sensitive_detector(name: str) -> Optional[SensitiveDetector]:
 def get_redactor(name: str) -> Optional[Redactor]:
     return _redactors.get(name)
 
+_anomaly_rules: dict[str, AnomalyRule] = {}
+
+def register_anomaly_rule(rule: AnomalyRule):
+    _anomaly_rules[rule.name] = rule
+
+def get_anomaly_rules() -> list[AnomalyRule]:
+    return list(_anomaly_rules.values())
+
 def get_anomaly_rules() -> list[AnomalyRule]:
     return list(_anomaly_rules.values())
 # stub backends implementation

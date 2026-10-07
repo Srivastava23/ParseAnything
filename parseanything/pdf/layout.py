@@ -34,11 +34,9 @@ class DoclingLayoutBackend:
                 ))
             return regions
         except ImportError:
-            # Gracefully fail back to empty, Orchestrator/Router should log warning
-            # We'll just return nothing and let a fallback handle it or return full page
-            return []
+            return RuleBasedLayoutBackend().detect(ctx)
         except Exception as e:
-            return []
+            return RuleBasedLayoutBackend().detect(ctx)
 
 class RuleBasedLayoutBackend:
     name = "rule_based"

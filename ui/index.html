@@ -405,15 +405,16 @@
         <span id="btn-text">Parse Document</span>
         <span id="btn-spinner" class="spinner hidden"></span>
       </button>
+      
+      <button class="btn btn-secondary" id="btn-excel" disabled style="margin-top: 0.5rem;" onclick="downloadExcel()">
+        ⬇️ Download Extracted Tables to Excel (.xlsx)
+      </button>
 
-      <div class="card-title" style="margin-top: 0.5rem; font-size: 0.9rem;">
-        ⚡ Instant Quick Test Fixtures
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-secondary" onclick="loadFixture('sample_test.docx')">Word (.docx)</button>
-        <button class="btn btn-secondary" onclick="loadFixture('sample_test.xlsx')">Excel (.xlsx)</button>
-        <button class="btn btn-secondary" onclick="loadFixture('sample_test.html')">HTML (.html)</button>
-        <button class="btn btn-secondary" onclick="loadFixture('sample_test.png')">Scan Image</button>
+
+
+      <div style="margin: 0.75rem 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+        <input type="checkbox" id="chk-redact" style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--cyan);">
+        <label for="chk-redact" style="cursor: pointer;">Enable PII Redaction (Masks PAN, Aadhaar, etc.)</label>
       </div>
 
       <div class="card-title" style="margin-top: 0.5rem; font-size: 0.9rem;">
@@ -445,6 +446,9 @@
         <button class="tab-btn active" onclick="switchTab('tab-md')">Clean Markdown</button>
         <button class="tab-btn" onclick="switchTab('tab-json')">Structured JSON</button>
         <button class="tab-btn" onclick="switchTab('tab-prov')">Bounding-Box Provenance</button>
+        <button class="tab-btn" onclick="switchTab('tab-anomalies')">Anomalies</button>
+        <button class="tab-btn" onclick="switchTab('tab-audio')">Audio (TTS)</button>
+        <button class="tab-btn" onclick="switchTab('tab-qa')">Next Questions</button>
       </div>
 
       <!-- Markdown Tab -->
@@ -484,11 +488,35 @@ Features:
           </div>
         </div>
       </div>
+
+      <!-- Anomalies Tab -->
+      <div class="tab-content" id="tab-anomalies">
+        <div class="provenance-list" id="anomalies-list">
+          <div class="prov-item"><div class="prov-content">No anomalies detected or no document parsed.</div></div>
+        </div>
+      </div>
+
+      <!-- Audio Tab -->
+      <div class="tab-content" id="tab-audio" style="padding: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Document Audio</h3>
+        <audio id="audio-player" controls style="width: 100%;"></audio>
+        <button class="btn btn-primary" id="btn-tts" onclick="generateAudio()" style="margin-top: 1rem;" disabled>Generate Audio</button>
+      </div>
+
+      <!-- QA Tab -->
+      <div class="tab-content" id="tab-qa" style="padding: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Suggested Next Questions</h3>
+        <div id="qa-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+           Waiting for document...
+        </div>
+        <button class="btn btn-primary" id="btn-qa" onclick="generateQA()" style="margin-top: 1rem;" disabled>Generate Suggestions</button>
+      </div>
     </div>
   </main>
 
   <script>
     let selectedFile = null;
+    let currentDocData = null;
 
     const dropzone = document.getElementById('dropzone');
     const fileInput = document.getElementById('file-input');
@@ -557,7 +585,9 @@ Features:
 
       try {
         const start = performance.now();
-        const res = await fetch(API_BASE + '/parse?format=json', {
+        const redactParam = document.getElementById('chk-redact').checked ? "&redact=true" : "";
+        
+        const res = await fetch(API_BASE + '/parse?format=json' + redactParam, {
           method: 'POST',
           body: formData
         });
@@ -574,11 +604,15 @@ Features:
         }
 
         const data = await res.json();
+        currentDocData = data;
+        document.getElementById('btn-excel').disabled = false;
+        document.getElementById('btn-tts').disabled = false;
+        document.getElementById('btn-qa').disabled = false;
         renderResults(data, elapsed);
 
         // Fetch Markdown version
         try {
-          const mdRes = await fetch(API_BASE + '/parse?format=md', {
+          const mdRes = await fetch(API_BASE + '/parse?format=md' + redactParam, {
             method: 'POST',
             body: formData
           });
@@ -641,6 +675,107 @@ Features:
       if (blockCount === 0) {
         provList.innerHTML = '<div class="prov-item"><div class="prov-content">No blocks found or corrupt document.</div></div>';
       }
+
+      // Populate Anomalies
+      const anomaliesList = document.getElementById('anomalies-list');
+      if (doc.analysis && doc.analysis.anomalies && doc.analysis.anomalies.length > 0) {
+        anomaliesList.innerHTML = "";
+        doc.analysis.anomalies.forEach(a => {
+            anomaliesList.innerHTML += `<div class="prov-item flagged">
+               <div class="prov-header"><span class="prov-type">${a.severity}</span><span>${a.rule}</span></div>
+               <div class="prov-content">${a.explanation}</div>
+            </div>`;
+        });
+      } else {
+        anomaliesList.innerHTML = '<div class="prov-item"><div class="prov-content">No anomalies found.</div></div>';
+      }
+    }
+
+    async function downloadExcel() {
+       if (!currentDocData) return;
+       const res = await fetch(API_BASE + '/export/xlsx', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(currentDocData)
+       });
+       if (res.ok) {
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = "export.xlsx";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+       } else { alert("Failed to download excel"); }
+    }
+
+    async function generateAudio() {
+       if (!currentDocData) return;
+       document.getElementById('btn-tts').textContent = "Generating...";
+       const res = await fetch(API_BASE + '/tts', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(currentDocData)
+       });
+       if (res.ok) {
+          const blob = await res.blob();
+          document.getElementById('audio-player').src = window.URL.createObjectURL(blob);
+       } else { alert("TTS Failed"); }
+       document.getElementById('btn-tts').textContent = "Generate Audio";
+    }
+
+    async function generateQA() {
+       if (!currentDocData) return;
+       document.getElementById('btn-qa').textContent = "Generating...";
+       const res = await fetch(API_BASE + '/next-questions', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(currentDocData)
+       });
+       if (res.ok) {
+          const data = await res.json();
+          const list = document.getElementById('qa-list');
+          list.innerHTML = "";
+          data.questions.forEach(q => {
+             list.innerHTML += `<div class="prov-item" style="cursor:pointer;" onclick="askQuestion('${q.replace(/'/g, "\\'")}', this)">
+                <div class="prov-content" style="font-weight:600;">${q} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal; margin-left:0.5rem;">(Click to answer)</span></div>
+                <div class="answer-box" style="display:none; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--card-border); color:var(--text); font-size:0.85rem; line-height:1.5;"></div>
+             </div>`;
+          });
+       } else { alert("Failed to generate QA"); }
+       document.getElementById('btn-qa').textContent = "Generate Suggestions";
+    }
+
+    async function askQuestion(question, element) {
+       const answerBox = element.querySelector('.answer-box');
+       if (answerBox.style.display === "block" && answerBox.textContent !== "Thinking...") {
+           answerBox.style.display = "none";
+           return; // toggle off
+       }
+       
+       answerBox.style.display = "block";
+       answerBox.textContent = "Thinking...";
+       
+       try {
+           const res = await fetch(API_BASE + '/answer', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({doc: currentDocData, question: question})
+           });
+           
+           if (res.ok) {
+              const data = await res.json();
+              answerBox.innerHTML = `<strong>Answer:</strong> ${data.answer}`;
+              if (data.unsupported_claims && data.unsupported_claims.length > 0) {
+                  answerBox.innerHTML += `<br><small style="color:var(--pink); display:block; margin-top:0.5rem;">⚠️ The LLM hallucinated the following claims without source evidence: ${data.unsupported_claims.join(", ")}</small>`;
+              }
+           } else { 
+               answerBox.textContent = "Failed to get answer.";
+           }
+       } catch(err) {
+           answerBox.textContent = "Error: " + err.message;
+       }
     }
 
     function countBlocks(doc) {

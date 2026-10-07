@@ -17,7 +17,9 @@ class TesseractOCRBackend:
         else:
             img = image
             
-        data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+        import os
+        lang = os.getenv("TESSERACT_LANG", "eng")
+        data = pytesseract.image_to_data(img, lang=lang, output_type=pytesseract.Output.DICT)
         
         lines = []
         n_boxes = len(data['level'])

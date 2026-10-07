@@ -75,10 +75,17 @@ class SQLiteRetriever(Retriever):
 
     def search(self, question: str, k: int = 5) -> list[Any]:
         c = self.conn.cursor()
-        # Ensure FTS query syntax is safe
-        query_safe = question.replace('"', '""')
+        # Clean question and create OR query for BM25
+        import re
+        words = re.findall(r'\w+', question.lower())
+        # Filter out common stop words to improve FTS matching
+        stopwords = {'what', 'are', 'the', 'is', 'in', 'this', 'to', 'do', 'does', 'did', 'a', 'an', 'of', 'and', 'for', 'on', 'with', 'can', 'you', 'how'}
+        keywords = [w for w in words if w not in stopwords]
+        
+        query_str = " OR ".join(keywords) if keywords else " ".join(words)
+        
         try:
-            c.execute("SELECT id, text, section_path, bm25(blocks_fts) as score FROM blocks_fts WHERE blocks_fts MATCH ? ORDER BY score LIMIT ?", (f'"{query_safe}"', k*2))
+            c.execute("SELECT id, text, section_path, bm25(blocks_fts) as score FROM blocks_fts WHERE blocks_fts MATCH ? ORDER BY score LIMIT ?", (query_str, k*2))
             bm25_results = c.fetchall()
         except sqlite3.OperationalError:
             bm25_results = []

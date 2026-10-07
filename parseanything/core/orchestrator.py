@@ -23,14 +23,21 @@ def process_page(page_idx: int, path: str, format_name: str, options: Options) -
         regions = layout_backend.detect(ctx)
         
     blocks = []
-    for region in regions:
-        extractors = get_region_extractors(region.label)
-        for extractor in extractors:
+    try:
+        for region in regions:
+            extractors = get_region_extractors(region.label)
+            for extractor in extractors:
+                try:
+                    extracted = extractor.extract(ctx, region)
+                    blocks.extend(extracted)
+                    break
+                except Exception as e:
+                    pass
+    finally:
+        if hasattr(ctx, '_pdf') and ctx._pdf:
             try:
-                extracted = extractor.extract(ctx, region)
-                blocks.extend(extracted)
-                break
-            except Exception as e:
+                ctx._pdf.close()
+            except Exception:
                 pass
                 
     return Page(number=page_idx, width=ctx.width, height=ctx.height, kind=kind, blocks=blocks)

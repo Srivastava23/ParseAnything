@@ -1,11 +1,6 @@
 from typing import Protocol, Any, Optional
 from pydantic import BaseModel
-from parseanything.schema import BBox, Block, ChartData, Document
-
-class Region(BaseModel):
-    bbox: BBox
-    label: str
-    score: float
+from parseanything.schema import BBox, Block, ChartData, Document, Region
 
 class PageContext:
     def __init__(self, page_number: int, width: float, height: float, image: Any, scale: float, pdf_page: Optional[Any], kind: str):

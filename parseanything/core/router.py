@@ -26,4 +26,11 @@ def route(format_name: str, path_or_bytes: Any, options: Any) -> Document:
         return parser.parse(path, options)
     finally:
         if is_temp:
-            os.remove(path)
+            import time
+            for _ in range(5):
+                try:
+                    if os.path.exists(path):
+                        os.remove(path)
+                    break
+                except OSError:
+                    time.sleep(0.05)

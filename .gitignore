@@ -5,3 +5,4 @@ __pycache__/
 .Python
 test.pdf
 test.bin
+output_test/

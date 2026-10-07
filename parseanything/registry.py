@@ -29,7 +29,14 @@ def get_ocr_backend(name: str) -> Optional[OCRBackend]:
     return _ocr_backends.get(name)
 
 def get_layout_backend(name: str) -> Optional[LayoutBackend]:
-    return _layout_backends.get(name)
+    if name in _layout_backends:
+        return _layout_backends[name]
+    if name in ["heuristic", "rule_based"]:
+        return _layout_backends.get("heuristic") or _layout_backends.get("rule_based")
+    for k, v in _layout_backends.items():
+        if k != "stub_layout":
+            return v
+    return _layout_backends.get("stub_layout")
 
 def get_vlm_backend(name: str) -> Optional[VLMBackend]:
     return _vlm_backends.get(name)

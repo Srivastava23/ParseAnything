@@ -1,0 +1,119 @@
+================================================================================
+                    PARSEANYTHING - PROJECT STATUS & HANDOVER
+================================================================================
+Last Updated: October 7, 2026
+Track: DataQuest 3.0 / Universal Document Ingestion Engine
+Core Philosophy: 100% Permissive, Self-Hosted CPU Execution, Zero Cloud Spend,
+                 No AGPL Contamination.
+
+--------------------------------------------------------------------------------
+1. PIPELINE OVERVIEW & ARCHITECTURE
+--------------------------------------------------------------------------------
+The ParseAnything engine ingests any document file (PDF, DOCX, XLSX, PPTX, HTML,
+PNG, JPG) and produces a strict Pydantic V2 Document schema containing semantic
+typed blocks (Headings, Paragraphs, Tables, Equations, Images) with bounding-box
+coordinate provenance and confidence ratings.
+
+Pipeline Stages:
+1. Sniff Stage (`parseanything/core/sniff.py`):
+   - Inspects file magic bytes and extensions without relying on OS file locks.
+   - Detects ZIP headers (DOCX, XLSX, PPTX) and inspects package contents in memory.
+2. Router Stage (`parseanything/core/router.py`):
+   - Directs paged formats (PDF, PNG, JPG) to orchestrator.
+   - Directs native structured formats (DOCX, PPTX, XLSX, HTML) to dedicated parsers.
+3. Native Parsers:
+   - `formats/pptx.py`: Extracts slides, shapes, text frames, tables with dimensions.
+   - `formats/docx.py`: Extracts paragraphs, headings, runs, tables.
+   - `formats/xlsx.py`: Extracts sheets, cell ranges, tabular blocks.
+   - `formats/misc.py`: Handles raw text, Markdown, HTML with BeautifulSoup.
+4. Vision & Paged Engine:
+   - `pdf/render.py`: Renders PDF pages via `pypdfium2` (Apache-2.0).
+   - `imageparse/pipeline.py`: Loads images into memory via Pillow.
+   - `pdf/classify.py`: Distinguishes native digital text vs. scanned raster pages.
+   - `pdf/layout.py`: Detects semantic regions.
+   - `pdf/text_blocks.py`: Extracts native text or routes to OCR backend.
+5. OCR Engine:
+   - `ocr/rapidocr_backend.py`: Runs RapidOCR via ONNX Runtime CPU. 
+   - No external binaries (Tesseract.exe) required! 100% Python/ONNX.
+6. API & UI:
+   - FastAPI server (`parseanything/api/main.py`) running on `http://127.0.0.1:8000`.
+   - Web UI (`ui/index.html`) accessible via `http://127.0.0.1:8000` or via Live Server (`:5500`).
+   - CORS middleware enabled.
+
+--------------------------------------------------------------------------------
+2. SYSTEM REQUIREMENTS & ENVIRONMENT STATUS
+--------------------------------------------------------------------------------
+DO YOU NEED DOCKER?
+- NO! Docker is NOT required for local running or testing.
+- The entire engine runs natively on Python 3.11/3.12/3.13 on Windows.
+- A `Dockerfile` and `docker-compose.yml` are provided if container deployment is needed.
+
+DO YOU NEED GPU?
+- NO! RapidOCR and layout heuristics run on CPU using `onnxruntime`.
+
+DO YOU NEED EXTERNAL TESSERACT EXECUTABLE?
+- NO! RapidOCR (`rapidocr_onnxruntime`) is installed and handles scanned images
+  and PDF OCR completely within Python.
+
+--------------------------------------------------------------------------------
+3. WHAT WAS FIXED & RECENT BUG RESOLUTIONS
+--------------------------------------------------------------------------------
+[FIXED] 1. PPTX Ingestion Support:
+  - Created `parseanything/formats/pptx.py` with `python-pptx`.
+  - Registered `.pptx` in `sniff.py` and `registry.py`.
+  - Extracts slides, tables, shapes, text boxes, and bounding boxes.
+
+[FIXED] 2. Sniff In-Memory Bytes Bug:
+  - Fixed `sniff.py` using `io.BytesIO` so inspecting `.pptx` uploads in raw memory
+    doesn't crash on `zipfile.is_zipfile`.
+
+[FIXED] 3. Frontend 405 Method Not Allowed / "Unexpected end of JSON input":
+  - When opening UI via Live Server (port 5500), `POST /parse` was hitting 5500.
+  - Added dynamic `API_BASE` in `ui/index.html` to target `http://127.0.0.1:8000`.
+  - Added `CORSMiddleware` to FastAPI in `parseanything/api/main.py`.
+
+[FIXED] 4. PDF Windows File-Locking Bug (500 Internal Server Error / WinError 32):
+  - In `pdf/render.py`, `pypdfium2` document was not closed, holding a Windows handle.
+  - In `core/orchestrator.py`, added cleanup in `process_page`.
+  - In `core/router.py`, added retry/resilience on temporary file deletion.
+
+[FIXED] 5. Scanned Image / PNG OCR Blank Output:
+  - Installed `rapidocr_onnxruntime` and ONNX runtime.
+  - PNG/JPG image extraction now extracts text with bounding boxes.
+
+--------------------------------------------------------------------------------
+4. CURRENT STATUS OF DOCUMENT FORMATS
+--------------------------------------------------------------------------------
+- PPTX (.pptx):  WORKING (Tested with real slides & DATAQUEST_3.0.pptx)
+- DOCX (.docx):  WORKING (Tested with sample_test.docx)
+- XLSX (.xlsx):  WORKING (Tested with sample_test.xlsx)
+- PDF  (.pdf):   WORKING (Tested with sample_test.pdf)
+- IMAGE(.png):   WORKING (Tested with sample_test.png via RapidOCR)
+- HTML (.html):  WORKING (Tested with sample_test.html)
+
+--------------------------------------------------------------------------------
+5. KNOWN REMAINING AREAS / FUTURE WORK
+--------------------------------------------------------------------------------
+1. Complex PDF Multi-Column Layout:
+   - Currently `RuleBasedLayoutBackend` returns a full-page region before extraction.
+   - For complex magazine/academic two-column PDFs, integrate YOLOv8 layout ONNX
+     model (per architecture plan) for multi-column segmentation.
+2. VLM Vision Pipeline:
+   - Default uses stub VLM for zero cloud cost. If cloud fallback is enabled,
+     integrate Gemini Flash or self-hosted mini-vlm ONNX.
+3. Formula / LaTeX extraction:
+   - Simple formulas work via text heuristics; advanced math OCR requires Mathpix/UniMERNet ONNX.
+
+--------------------------------------------------------------------------------
+6. HOW TO RUN THE PROJECT
+--------------------------------------------------------------------------------
+1. Install dependencies:
+   pip install -r requirements.txt
+
+2. Run the FastAPI Server:
+   uvicorn parseanything.api.main:app --host 127.0.0.1 --port 8000 --reload
+
+3. Access the Web Dashboard:
+   Open browser at: http://127.0.0.1:8000
+   (Or run via VS Code Live Server at http://127.0.0.1:5500/ui/index.html)
+================================================================================

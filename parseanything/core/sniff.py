@@ -31,20 +31,20 @@ def sniff_format(path_or_bytes: str | bytes, extension_hint: str = "") -> str:
     if header.startswith(b"RIFF") and header[8:12] == b"WEBP":
         return "webp"
 
-    # Zip-based (OOXML)
     if header.startswith(b"PK\x03\x04"):
-        if isinstance(path_or_bytes, str):
-            try:
-                with zipfile.ZipFile(path_or_bytes, "r") as zf:
-                    namelist = zf.namelist()
-                    if "word/document.xml" in namelist:
-                        return "docx"
-                    if "xl/workbook.xml" in namelist:
-                        return "xlsx"
-                    if "ppt/presentation.xml" in namelist:
-                        return "pptx"
-            except zipfile.BadZipFile:
-                pass
+        try:
+            import io
+            file_obj = path_or_bytes if isinstance(path_or_bytes, str) else io.BytesIO(path_or_bytes)
+            with zipfile.ZipFile(file_obj, "r") as zf:
+                namelist = zf.namelist()
+                if "word/document.xml" in namelist:
+                    return "docx"
+                if "xl/workbook.xml" in namelist:
+                    return "xlsx"
+                if "ppt/presentation.xml" in namelist:
+                    return "pptx"
+        except zipfile.BadZipFile:
+            pass
         return "zip"
 
     # OLE2 (legacy doc/xls/ppt or msg)

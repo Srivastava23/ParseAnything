@@ -12,6 +12,7 @@ import parseanything.charts.extract
 import parseanything.math.extract
 import parseanything.formats.docx
 import parseanything.formats.xlsx
+import parseanything.formats.pptx
 import parseanything.formats.misc
 def _do_parse(path_or_bytes: Any, options: Options, extension_hint: str = "") -> Document:
     from parseanything.core.sniff import sniff_format
@@ -35,6 +36,15 @@ def _do_parse(path_or_bytes: Any, options: Options, extension_hint: str = "") ->
         from parseanything.schema import DocStats
         doc = Document(source=source_name, format="unknown", stats=DocStats())
         doc.errors.append(e.parse_error)
+        return doc
+    except Exception as e:
+        source_name = path_or_bytes if isinstance(path_or_bytes, str) else "bytes"
+        from parseanything.schema import DocStats
+        from parseanything.errors import ErrorCode, ParseError
+        doc = Document(source=source_name, format="unknown", stats=DocStats())
+        err_msg = str(e)
+        code = ErrorCode.CORRUPT_FILE if ("format error" in err_msg.lower() or "pdfium" in err_msg.lower()) else ErrorCode.INTERNAL_ERROR
+        doc.errors.append(ParseError(code=code, message=err_msg, stage="parse", recoverable=False))
         return doc
 
 def parse(path_or_bytes: Any, options: Optional[Options] = None, extension_hint: str = "") -> Document:

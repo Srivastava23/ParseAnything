@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ParseAnything | High-Fidelity Universal Document Ingestion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --card-bg: rgba(22, 27, 34, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+      --cyan: #079ed2;
+      --pink: #fd1485;
+      --yellow: #ffb903;
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --code-bg: #11151c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 10%, rgba(7, 158, 210, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 90%, rgba(253, 20, 133, 0.10) 0%, transparent 45%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(11, 14, 20, 0.8);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-badge {
+      background: linear-gradient(135deg, var(--cyan), var(--pink));
+      color: white;
+      font-weight: 800;
+      font-size: 1.1rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      letter-spacing: -0.5px;
+      box-shadow: 0 4px 15px rgba(253, 20, 133, 0.3);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--cyan);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .badge-online {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .badge-track {
+      background: rgba(7, 158, 210, 0.15);
+      border: 1px solid rgba(7, 158, 210, 0.3);
+      color: #38bdf8;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 2rem 2.5rem;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 2rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text);
+    }
+
+    .dropzone {
+      border: 2px dashed rgba(7, 158, 210, 0.35);
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      background: rgba(7, 158, 210, 0.03);
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--cyan);
+      background: rgba(7, 158, 210, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .dropzone-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .dropzone-text {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .dropzone-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), #0077b6);
+      color: white;
+      box-shadow: 0 4px 12px rgba(7, 158, 210, 0.3);
+      grid-column: span 2;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(7, 158, 210, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      padding: 0.85rem;
+      border-radius: 10px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-top: 0.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 0.75rem;
+    }
+
+    .tab-btn {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      color: var(--text);
+      background: rgba(7, 158, 210, 0.15);
+      border: 1px solid rgba(7, 158, 210, 0.3);
+    }
+
+    .tab-content {
+      display: none;
+      height: 600px;
+      overflow-y: auto;
+      border-radius: 8px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .code-viewer {
+      background: var(--code-bg);
+      padding: 1.25rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #e6edf3;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      border: 1px solid var(--card-border);
+      height: 100%;
+      overflow: auto;
+    }
+
+    .provenance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding-right: 0.5rem;
+    }
+
+    .prov-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--cyan);
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .prov-item.flagged {
+      border-left-color: var(--pink);
+      background: rgba(253, 20, 133, 0.05);
+    }
+
+    .prov-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .prov-type {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(7, 158, 210, 0.15);
+      color: var(--cyan);
+    }
+
+    .prov-coords {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .prov-content {
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo-badge">PA</div>
+      <div>
+        <div class="brand-title">ParseAnything</div>
+        <div class="brand-subtitle">DataQuest 3.0 • Universal Document Engine</div>
+      </div>
+    </div>
+    <div class="header-badges">
+      <div class="badge badge-track">DQCL Hackathon</div>
+      <div class="badge badge-online">
+        <span class="badge-dot"></span> Core API Online (Port 8000)
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left Column: Controls & Upload -->
+    <div class="card">
+      <div class="card-title">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Document Ingestion
+      </div>
+
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-icon">📄</div>
+        <div class="dropzone-text" id="dropzone-text">Drop any document here</div>
+        <div class="dropzone-sub">Supports PDF, DOCX, XLSX, PPTX, HTML, PNG, JPG</div>
+        <input type="file" id="file-input" class="hidden">
+      </div>
+
+      <button class="btn btn-primary" id="btn-parse" disabled>
+        <span id="btn-text">Parse Document</span>
+        <span id="btn-spinner" class="spinner hidden"></span>
+      </button>
+
+      <div class="card-title" style="margin-top: 0.5rem; font-size: 0.9rem;">
+        ⚡ Instant Quick Test Fixtures
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="loadFixture('sample_test.docx')">Word (.docx)</button>
+        <button class="btn btn-secondary" onclick="loadFixture('sample_test.xlsx')">Excel (.xlsx)</button>
+        <button class="btn btn-secondary" onclick="loadFixture('sample_test.html')">HTML (.html)</button>
+        <button class="btn btn-secondary" onclick="loadFixture('sample_test.png')">Scan Image</button>
+      </div>
+
+      <div class="card-title" style="margin-top: 0.5rem; font-size: 0.9rem;">
+        📊 Real-Time Engine Stats
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Pages Processed</div>
+          <div class="stat-value" id="stat-pages">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Blocks Extracted</div>
+          <div class="stat-value" id="stat-blocks">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Latency</div>
+          <div class="stat-value" id="stat-time">0.00s</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">API Cloud Cost</div>
+          <div class="stat-value" id="stat-cost" style="color: var(--green);">$0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Outputs -->
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-md')">Clean Markdown</button>
+        <button class="tab-btn" onclick="switchTab('tab-json')">Structured JSON</button>
+        <button class="tab-btn" onclick="switchTab('tab-prov')">Bounding-Box Provenance</button>
+      </div>
+
+      <!-- Markdown Tab -->
+      <div class="tab-content active" id="tab-md">
+        <pre class="code-viewer" id="md-viewer"># Welcome to ParseAnything Universal Engine
+
+Upload a document or click a quick-test fixture on the left to see live structured extraction.
+
+Features:
+• Typed semantic blocks (headings, paragraphs, tables, equations, charts)
+• Zero hallucination guarantee (flagged confidence model)
+• Bounding-box coordinate provenance on every block
+• 100% Permissive self-hosted CPU execution</pre>
+      </div>
+
+      <!-- JSON Tab -->
+      <div class="tab-content" id="tab-json">
+        <pre class="code-viewer" id="json-viewer">{
+  "status": "ready",
+  "engine": "ParseAnything 0.1.0",
+  "contract": "Pydantic V2",
+  "timeout_watchdog": "60s (55s strict)"
+}</pre>
+      </div>
+
+      <!-- Provenance Tab -->
+      <div class="tab-content" id="tab-prov">
+        <div class="provenance-list" id="prov-list">
+          <div class="prov-item">
+            <div class="prov-header">
+              <span class="prov-type">READY</span>
+              <span class="prov-coords">No active document</span>
+            </div>
+            <div class="prov-content">
+              Select or upload a document to view bounding box provenance coordinates and confidence scores per semantic block.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let selectedFile = null;
+
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const btnParse = document.getElementById('btn-parse');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    const dropzoneText = document.getElementById('dropzone-text');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        setFile(e.target.files[0]);
+      }
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) {
+        setFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    function setFile(file) {
+      selectedFile = file;
+      dropzoneText.textContent = file.name;
+      btnParse.disabled = false;
+    }
+
+    const API_BASE = (window.location.port === '8000') ? '' : 'http://127.0.0.1:8000';
+
+    async function loadFixture(name) {
+      try {
+        btnText.textContent = "Loading " + name + "...";
+        btnSpinner.classList.remove('hidden');
+        const res = await fetch(API_BASE + '/fixture/' + name);
+        if (!res.ok) throw new Error("Could not load fixture (Status " + res.status + ")");
+        const blob = await res.blob();
+        const file = new File([blob], name);
+        setFile(file);
+        await parseCurrentFile();
+      } catch (err) {
+        btnText.textContent = "Parse Document";
+        btnSpinner.classList.add('hidden');
+        alert("Fixture test failed: " + err.message);
+      }
+    }
+
+    btnParse.addEventListener('click', parseCurrentFile);
+
+    async function parseCurrentFile() {
+      if (!selectedFile) return;
+
+      btnParse.disabled = true;
+      btnSpinner.classList.remove('hidden');
+      btnText.textContent = "Parsing Document...";
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const start = performance.now();
+        const res = await fetch(API_BASE + '/parse?format=json', {
+          method: 'POST',
+          body: formData
+        });
+        const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+
+        if (!res.ok) {
+          const errText = await res.text();
+          let errDetail = errText;
+          try {
+            const parsed = JSON.parse(errText);
+            errDetail = JSON.stringify(parsed, null, 2);
+          } catch (_) {}
+          throw new Error("Server responded with " + res.status + ": " + errDetail);
+        }
+
+        const data = await res.json();
+        renderResults(data, elapsed);
+
+        // Fetch Markdown version
+        try {
+          const mdRes = await fetch(API_BASE + '/parse?format=md', {
+            method: 'POST',
+            body: formData
+          });
+          if (mdRes.ok) {
+            const mdText = await mdRes.text();
+            document.getElementById('md-viewer').textContent = mdText;
+          }
+        } catch (mdErr) {
+          console.warn("Markdown render error:", mdErr);
+        }
+
+      } catch (err) {
+        document.getElementById('json-viewer').textContent = "Error: " + err.message;
+        document.getElementById('md-viewer').textContent = "Parsing failed:\n" + err.message;
+      } finally {
+        btnParse.disabled = false;
+        btnSpinner.classList.add('hidden');
+        btnText.textContent = "Parse Document";
+      }
+    }
+
+    function renderResults(doc, elapsed) {
+      document.getElementById('json-viewer').textContent = JSON.stringify(doc, null, 2);
+
+      const stats = doc.stats || {};
+      document.getElementById('stat-pages').textContent = stats.pages || (doc.pages ? doc.pages.length : 1);
+      document.getElementById('stat-blocks').textContent = stats.blocks || countBlocks(doc);
+      document.getElementById('stat-time').textContent = (stats.elapsed_s ? stats.elapsed_s.toFixed(2) : elapsed) + "s";
+      document.getElementById('stat-cost').textContent = stats.est_cost_usd ? "$" + stats.est_cost_usd.toFixed(4) : "$0.00";
+
+      // Populate Provenance Tab
+      const provList = document.getElementById('prov-list');
+      provList.innerHTML = "";
+
+      let blockCount = 0;
+      if (doc.pages) {
+        doc.pages.forEach(p => {
+          (p.blocks || []).forEach(b => {
+            blockCount++;
+            const item = document.createElement('div');
+            item.className = "prov-item" + (b.flagged ? " flagged" : "");
+            
+            const bboxStr = b.bbox ? `[${b.bbox.x0.toFixed(0)}, ${b.bbox.y0.toFixed(0)}, ${b.bbox.x1.toFixed(0)}, ${b.bbox.y1.toFixed(0)}]` : "N/A";
+            const confStr = b.confidence ? (b.confidence * 100).toFixed(0) + "%" : "100%";
+
+            item.innerHTML = `
+              <div class="prov-header">
+                <span class="prov-type">${b.type || 'BLOCK'}</span>
+                <span class="prov-coords">Page ${p.number} • BBox: ${bboxStr} • Conf: ${confStr}</span>
+              </div>
+              <div class="prov-content">
+                ${b.content || (b.table ? 'Table: ' + b.table.n_rows + ' rows' : 'No text content')}
+              </div>
+            `;
+            provList.appendChild(item);
+          });
+        });
+      }
+
+      if (blockCount === 0) {
+        provList.innerHTML = '<div class="prov-item"><div class="prov-content">No blocks found or corrupt document.</div></div>';
+      }
+    }
+
+    function countBlocks(doc) {
+      if (!doc.pages) return 0;
+      return doc.pages.reduce((acc, p) => acc + (p.blocks ? p.blocks.length : 0), 0);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>

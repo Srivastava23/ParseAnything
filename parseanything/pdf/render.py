@@ -13,6 +13,7 @@ def get_page_count(path: str) -> int:
         return 1
     pdf = pdfium.PdfDocument(path)
     count = len(pdf)
+    pdf.close()
     return count
 
 def render_page(path: str, page_idx: int, dpi: int = 72) -> PageContext:

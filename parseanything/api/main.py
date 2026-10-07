@@ -1,10 +1,19 @@
 from fastapi import FastAPI, UploadFile, File, Form, Query, HTTPException
 from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.middleware.cors import CORSMiddleware
 from parseanything import parse
 from parseanything.config import Options
 from parseanything.registry import _ocr_backends, _layout_backends, _vlm_backends, _format_parsers
 
 app = FastAPI(title="ParseAnything API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/parse")
 async def parse_endpoint(
@@ -34,6 +43,27 @@ async def parse_endpoint(
             raise HTTPException(status_code=501, detail="Markdown rendering not implemented yet.")
             
     return doc.model_dump()
+
+import os
+from fastapi.responses import HTMLResponse, FileResponse
+
+_root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_ui_path = os.path.join(_root_dir, "ui", "index.html")
+
+@app.get("/", response_class=HTMLResponse)
+@app.get("/ui", response_class=HTMLResponse)
+def index():
+    if os.path.exists(_ui_path):
+        with open(_ui_path, "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h1>ParseAnything API is running</h1><p>Visit <a href='/docs'>/docs</a> for Swagger UI.</p>"
+
+@app.get("/fixture/{name}")
+def get_fixture(name: str):
+    target = os.path.join(_root_dir, name)
+    if os.path.exists(target):
+        return FileResponse(target)
+    raise HTTPException(status_code=404, detail="Fixture not found")
 
 @app.get("/health")
 def health():

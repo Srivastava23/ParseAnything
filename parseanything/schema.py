@@ -24,6 +24,11 @@ class BBox(BaseModel):
     x1: float
     y1: float
 
+class Region(BaseModel):
+    bbox: BBox
+    label: str
+    score: float
+
 class TableCell(BaseModel):
     row: int
     col: int

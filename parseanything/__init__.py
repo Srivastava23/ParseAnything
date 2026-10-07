@@ -2,6 +2,17 @@ from typing import Any, Optional
 from parseanything.schema import Document
 from parseanything.config import Options
 
+# Import backends and extractors to register them
+import parseanything.ocr.rapidocr_backend
+import parseanything.ocr.tesseract_backend
+import parseanything.pdf.layout
+import parseanything.pdf.text_blocks
+import parseanything.tables.extract
+import parseanything.charts.extract
+import parseanything.math.extract
+import parseanything.formats.docx
+import parseanything.formats.xlsx
+import parseanything.formats.misc
 def _do_parse(path_or_bytes: Any, options: Options, extension_hint: str = "") -> Document:
     from parseanything.core.sniff import sniff_format
     from parseanything.core.router import route

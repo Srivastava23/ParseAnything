@@ -1,13 +1,12 @@
 import os
 import zipfile
-import magic
 
 def sniff_format(path_or_bytes: str | bytes, extension_hint: str = "") -> str:
     """Detects file format by magic bytes or content heuristics."""
     if isinstance(path_or_bytes, str):
         if not os.path.exists(path_or_bytes):
-            from parseanything.errors import ErrorCode, ParseError
-            raise ParseError(code=ErrorCode.FILE_NOT_FOUND, message=f"File not found: {path_or_bytes}")
+            from parseanything.errors import ErrorCode, ParseError, ParseException
+            raise ParseException(ParseError(code=ErrorCode.FILE_NOT_FOUND, message=f"File not found: {path_or_bytes}"))
         with open(path_or_bytes, "rb") as f:
             header = f.read(8192)
     else:
@@ -15,8 +14,8 @@ def sniff_format(path_or_bytes: str | bytes, extension_hint: str = "") -> str:
 
     # Handle empty files
     if not header:
-        from parseanything.errors import ErrorCode, ParseError
-        raise ParseError(code=ErrorCode.EMPTY_FILE, message="File is empty")
+        from parseanything.errors import ErrorCode, ParseError, ParseException
+        raise ParseException(ParseError(code=ErrorCode.EMPTY_FILE, message="File is empty"))
 
     # Magic byte signatures
     if header.startswith(b"%PDF"):
@@ -80,5 +79,5 @@ def sniff_format(path_or_bytes: str | bytes, extension_hint: str = "") -> str:
         if ext in ["pdf", "png", "jpg", "jpeg", "tiff", "bmp", "webp", "docx", "xlsx", "pptx", "doc", "xls", "ppt", "msg", "eml", "html", "txt", "csv"]:
             return "jpg" if ext == "jpeg" else ext
 
-    from parseanything.errors import ErrorCode, ParseError
-    raise ParseError(code=ErrorCode.UNSUPPORTED_FORMAT, message="Unsupported file format")
+    from parseanything.errors import ErrorCode, ParseError, ParseException
+    raise ParseException(ParseError(code=ErrorCode.UNSUPPORTED_FORMAT, message="Unsupported file format"))

@@ -3,7 +3,7 @@ import os
 import tempfile
 from parseanything.schema import Document
 from parseanything.registry import get_format_parser
-from parseanything.errors import ErrorCode, ParseError
+from parseanything.errors import ErrorCode, ParseError, ParseException
 from parseanything.core.orchestrator import process_paged_document
 
 def route(format_name: str, path_or_bytes: Any, options: Any) -> Document:
@@ -21,7 +21,7 @@ def route(format_name: str, path_or_bytes: Any, options: Any) -> Document:
         
         parser = get_format_parser(format_name)
         if not parser:
-            raise ParseError(code=ErrorCode.UNSUPPORTED_FORMAT, message=f"No parser available for format: {format_name}")
+            raise ParseException(ParseError(code=ErrorCode.UNSUPPORTED_FORMAT, message=f"No parser available for format: {format_name}"))
         
         return parser.parse(path, options)
     finally:

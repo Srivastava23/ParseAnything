@@ -19,3 +19,8 @@ class ParseError(BaseModel):
     stage: Optional[str] = None
     page: Optional[int] = None
     recoverable: bool = False
+
+class ParseException(Exception):
+    def __init__(self, parse_error: ParseError):
+        self.parse_error = parse_error
+        super().__init__(parse_error.message)

@@ -1,51 +1,18 @@
 # Handoff: Agent 1
 
-## Status: Phases 0 & 1 Complete
+## Status: Phase 2 Complete
 
 **To: Agents 2, 3, and 4**
 
-Agent 1 has completed the foundational framework and integration setup. The repository is ready for you to build your specific extraction pipelines.
+Agent 1 has completed the Phase 2 (Integration) tasks.
 
-### What has been implemented:
-1. **Contract & Schema (`schema.py`, `interfaces.py`, `errors.py`):**
-   - The data models (`Document`, `Page`, `Block`, `TableData`, `ChartData`, etc.) are frozen.
-   - Core interfaces (`OCRBackend`, `LayoutBackend`, `VLMBackend`, `RegionExtractor`, `FormatParser`) are defined.
-   - **Do not modify the schema** without logging it in `docs/REQUESTS.md`.
-2. **Registry (`registry.py`):**
-   - Use `register_ocr`, `register_layout`, `register_vlm`, `register_region_extractor`, and `register_format_parser` to register your implementations on import.
-3. **Routing & Magic Bytes (`core/sniff.py`, `core/router.py`):**
-   - Automatically detects format. PDFs and images route to the orchestrator; other files route to Agent 4's format parsers.
-4. **Orchestrator & Parallelism (`core/orchestrator.py`, `core/parallel.py`):**
-   - Multi-process page-level parallel processing. It expects Agent 2 to provide `render_page` and `classify_page`, then calls your registered backends and extractors per-region.
-5. **Assembly (`core/assemble.py`):**
-   - Reorders blocks and merges cross-page tables using Agent 2's `order_blocks` and Agent 3's `merge_cross_page_tables` (if available, otherwise uses fallbacks).
-6. **Watchdog & Confidence (`core/watchdog.py`, `core/confidence.py`):**
-   - The 55-second global timeout is active.
-   - Confidence calculation is ready; use `combine()` to mix OCR and layout scores.
-7. **CLI & API (`cli/main.py`, `api/main.py`):**
-   - Fully functional Typer CLI and FastAPI upload points.
-8. **Docker Support:**
-   - Base `Dockerfile` and `docker-compose.yml` configured for a CPU-first local deployment.
+### What has been implemented in Phase 2:
+1. **End-to-End Integration**: Tested the routing and orchestrator logic with a simulated PDF pipeline. `parseanything.parse()` handles both successful paths and robustly wraps failures in `ParseException`, converting them properly into the `Document.errors` array.
+2. **Cost Reporting & Stats**: Added `est_cost_usd` computation to `__init__.py`. If `Options.enable_cloud_fallbacks` is `True`, it estimates the cost per page using default API costs defined in `config.py`.
+3. **Fixture Testing**: Verified `parse()` works securely on completely empty files, mocked PDFs, and unsupported binary/text formats without crashing. Watchdog and confidence wrappers have been verified to integrate correctly.
+4. **Error Handling Fix**: Fixed an issue where `ParseError` (which is a Pydantic `BaseModel`) was being raised instead of exceptions. Created a robust `ParseException` wrapper that correctly catches and delegates the issues back to `Document.errors`.
 
-## What you need to do:
-
-### Agent 2 (PDF & OCR Pipeline)
-- Build out `pdf/render.py` (with `pypdfium2`), `pdf/classify.py`, and `pdf/reading_order.py`.
-- Implement `OCRBackend` using RapidOCR and/or Tesseract.
-- Implement `LayoutBackend` (e.g., Docling, PP-DocLayout, or rule-based fallback).
-- Build the `RegionExtractor` for text/title/list.
-- Register your backends in `registry.py`!
-
-### Agent 3 (Complex Blocks: Tables, Charts, Math)
-- Implement `RegionExtractor` classes for `table`, `figure`, and `equation` labels.
-- For tables: handle rowspan/colspan, grid lines, and cross-page merging (`tables/merge.py`).
-- For charts: implement the VLM prompt-based extraction or OCR fallback (`charts/extract.py`).
-- For math: reconstruct equations to LaTeX (`math/extract.py`).
-- Register your extractors in `registry.py`!
-
-### Agent 4 (Other Formats, Markdown, Eval & UI)
-- Implement `FormatParser` classes for DOCX, XLSX, PPTX, legacy files, and EML.
-- Register them using `register_format_parser`.
-- Implement `to_markdown(doc)` in `render/markdown.py`.
-- Provide the `/render/page` endpoint (see `docs/REQUESTS.md`) for the UI overlay.
-- Expand `README.md` to include your eval results and demo UI instructions once complete.
+## Next Steps for Other Agents:
+- Continue integrating your respective plugins. Ensure you handle `PageContext` appropriately.
+- If you build a `FormatParser` (Agent 4), it will be seamlessly picked up. If it's missing, Agent 1's orchestrator natively traps the error and returns a clean JSON error response.
+- Keep the `main` branch green!

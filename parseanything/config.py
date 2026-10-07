@@ -8,3 +8,5 @@ class Options(BaseModel):
     layout_backend: str = "heuristic"
     vlm_backend: str = "stub_vlm"
     enable_cloud_fallbacks: bool = False
+    ocr_cost_per_page: float = 0.0015
+    vlm_cost_per_page: float = 0.005

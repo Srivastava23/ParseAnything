@@ -101,13 +101,13 @@
       display: flex;
       flex-direction: column;
       -webkit-font-smoothing: antialiased;
-      font-size: 14px;
+      font-size: 16px;
     }
 
     /* Custom Slim Scrollbars */
     ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
     }
     ::-webkit-scrollbar-track {
       background: transparent;
@@ -121,10 +121,10 @@
     }
 
     /* =========================================================
-       RESPONSIVE COMPACT HEADER (52px)
+       RESPONSIVE COMPACT HEADER (56px)
        ========================================================= */
     header {
-      height: 52px;
+      height: 56px;
       padding: 0 1.25rem;
       border-bottom: var(--border-thick);
       background: var(--header-bg);
@@ -139,14 +139,14 @@
     .brand-container {
       display: flex;
       align-items: center;
-      gap: 0.85rem;
+      gap: 0.95rem;
       text-decoration: none;
     }
 
     .dq-logo-lockup {
       display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.28rem;
       user-select: none;
       flex-shrink: 0;
     }
@@ -155,9 +155,9 @@
       font-family: 'Syne', sans-serif;
       font-weight: 900;
       text-transform: uppercase;
-      font-size: 0.98rem;
+      font-size: 1.15rem;
       line-height: 1;
-      padding: 0.3rem 0.5rem;
+      padding: 0.35rem 0.6rem;
       border: 2px solid #000000;
       box-shadow: 2px 2px 0px #000000;
       color: #000000;
@@ -181,19 +181,19 @@
       color: #ffffff;
       display: flex;
       align-items: center;
-      gap: 0.2rem;
+      gap: 0.25rem;
     }
 
     .dq-chevrons {
       color: #000000;
-      font-size: 0.8rem;
+      font-size: 0.92rem;
       font-weight: 900;
     }
 
     .brand-meta {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
     }
 
     .dq-ribbon-tagline {
@@ -201,9 +201,9 @@
       color: #ffffff;
       font-family: 'Syne', sans-serif;
       font-weight: 800;
-      font-size: 0.68rem;
+      font-size: 0.82rem;
       letter-spacing: 0.5px;
-      padding: 0.18rem 0.55rem;
+      padding: 0.25rem 0.72rem;
       border: 1.5px solid #000000;
       text-transform: uppercase;
       white-space: nowrap;
@@ -214,7 +214,7 @@
     }
 
     .brand-subtitle-text {
-      font-size: 0.74rem;
+      font-size: 0.88rem;
       font-weight: 700;
       color: var(--text-muted);
       letter-spacing: 0.3px;
@@ -231,20 +231,20 @@
 
     .header-actions {
       display: flex;
-      gap: 0.55rem;
+      gap: 0.65rem;
       align-items: center;
       flex-shrink: 0;
     }
 
     .brutal-badge {
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       font-weight: 800;
-      padding: 0.28rem 0.65rem;
+      padding: 0.35rem 0.8rem;
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
       text-transform: uppercase;
       letter-spacing: 0.3px;
       white-space: nowrap;
@@ -265,8 +265,8 @@
     }
 
     .badge-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       background: #000000;
       border-radius: 50%;
       animation: pulseDot 1.8s infinite ease-in-out;
@@ -282,12 +282,12 @@
       color: #000000;
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
-      padding: 0.28rem 0.7rem;
+      padding: 0.35rem 0.85rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      font-size: 0.75rem;
+      gap: 0.4rem;
+      font-size: 0.84rem;
       font-weight: 800;
       font-family: inherit;
       text-transform: uppercase;
@@ -300,17 +300,23 @@
     }
 
     /* =========================================================
-       MAIN GRID - BALANCED & RESPONSIVE
+       MAIN GRID - FULL-SPACE UTILIZATION
        ========================================================= */
     main {
       flex: 1;
-      height: calc(100vh - 52px);
+      height: calc(100vh - 56px);
       width: 100%;
-      padding: 0.75rem 1.25rem;
+      padding: 0.45rem 0.65rem; /* Tight margins to utilize all space */
       display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 1.15rem;
+      grid-template-columns: 390px 1fr;
+      gap: 0.65rem;
       overflow: hidden;
+    }
+
+    @media (min-width: 1440px) {
+      main {
+        grid-template-columns: 430px 1fr;
+      }
     }
 
     @media (max-width: 1024px) {
@@ -330,10 +336,10 @@
       background: var(--card-bg);
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal);
-      padding: 0.85rem;
+      padding: 0.95rem 1rem;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
+      gap: 0.65rem;
       overflow: hidden;
       height: 100%;
       min-height: 0;
@@ -343,18 +349,18 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 0.4rem;
+      padding-bottom: 0.45rem;
       border-bottom: var(--border-thick);
       flex-shrink: 0;
     }
 
     .card-title {
       font-family: 'Syne', sans-serif;
-      font-size: 0.88rem;
+      font-size: 1.1rem;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.45rem;
       color: var(--text);
       text-transform: uppercase;
       letter-spacing: 0.3px;
@@ -362,11 +368,11 @@
 
     .tech-tag {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.68rem;
+      font-size: 0.8rem;
       font-weight: 700;
       color: var(--text-dim);
       background: var(--item-bg);
-      padding: 0.1rem 0.4rem;
+      padding: 0.16rem 0.55rem;
       border: 1px solid var(--card-border);
     }
 
@@ -376,19 +382,19 @@
     .left-controls-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.65rem;
       flex: 1;
       min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
-      padding-right: 3px;
+      padding-right: 4px;
     }
 
     /* Compact Dropzone */
     .dropzone {
       border: 2px dashed var(--dropzone-border);
       background: var(--dropzone-bg);
-      padding: 0.75rem 0.65rem;
+      padding: 1.1rem 0.95rem;
       text-align: center;
       cursor: pointer;
       display: flex;
@@ -398,6 +404,7 @@
       user-select: none;
       box-shadow: var(--shadow-brutal-sm);
       flex-shrink: 0;
+      min-height: 135px;
     }
 
     .dropzone:hover, .dropzone.dragover {
@@ -407,38 +414,38 @@
     }
 
     .dropzone-graphic {
-      font-size: 1.4rem;
-      margin-bottom: 0.15rem;
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
     }
 
     .dropzone-title {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
-      font-size: 0.86rem;
+      font-size: 1.05rem;
       color: var(--text);
       text-transform: uppercase;
-      margin-bottom: 0.15rem;
+      margin-bottom: 0.25rem;
     }
 
     .dropzone-desc {
-      font-size: 0.72rem;
+      font-size: 0.86rem;
       color: var(--text-muted);
-      line-height: 1.25;
+      line-height: 1.35;
     }
 
     .browse-chip {
-      margin-top: 0.45rem;
-      padding: 0.25rem 0.75rem;
+      margin-top: 0.6rem;
+      padding: 0.35rem 0.95rem;
       background: var(--dq-yellow);
       color: #000000;
-      font-size: 0.74rem;
+      font-size: 0.88rem;
       font-weight: 800;
       text-transform: uppercase;
       border: 1.5px solid #000000;
       box-shadow: 2px 2px 0px #000000;
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.35rem;
     }
 
     .dropzone:hover .browse-chip {
@@ -450,11 +457,11 @@
       display: none;
       align-items: center;
       justify-content: space-between;
-      padding: 0.4rem 0.65rem;
+      padding: 0.5rem 0.85rem;
       background: var(--item-bg);
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
-      font-size: 0.76rem;
+      font-size: 0.9rem;
       font-weight: 700;
       flex-shrink: 0;
     }
@@ -467,27 +474,27 @@
       border: 1px solid #000000;
       box-shadow: 1px 1px 0px #000000;
       cursor: pointer;
-      font-size: 0.68rem;
+      font-size: 0.8rem;
       font-weight: 800;
-      padding: 0.15rem 0.45rem;
+      padding: 0.2rem 0.55rem;
       font-family: inherit;
     }
 
     /* Buttons */
     .btn {
-      padding: 0.58rem 0.85rem;
+      padding: 0.72rem 1rem;
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
       font-family: 'Syne', sans-serif;
       font-weight: 800;
-      font-size: 0.84rem;
+      font-size: 1.02rem;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.4px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.4rem;
+      gap: 0.45rem;
       flex-shrink: 0;
     }
 
@@ -512,34 +519,35 @@
       background: var(--dq-red);
       color: #ffffff;
       width: 100%;
+      font-weight: 900;
     }
 
     .btn-secondary {
       background: var(--dq-yellow);
       color: #000000;
       width: 100%;
-      font-size: 0.78rem;
-      padding: 0.45rem 0.7rem;
+      font-size: 0.92rem;
+      padding: 0.58rem 0.85rem;
     }
 
     .control-row {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
+      gap: 0.6rem;
+      font-size: 0.88rem;
       font-weight: 700;
       color: var(--text);
       user-select: none;
       background: var(--item-bg);
       border: var(--border-thin);
-      padding: 0.4rem 0.6rem;
+      padding: 0.5rem 0.75rem;
       flex-shrink: 0;
     }
 
     .control-row input[type="checkbox"] {
       cursor: pointer;
-      width: 15px;
-      height: 15px;
+      width: 17px;
+      height: 17px;
       accent-color: var(--dq-red);
     }
 
@@ -547,7 +555,7 @@
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0.45rem;
+      gap: 0.55rem;
       flex-shrink: 0;
     }
 
@@ -555,23 +563,23 @@
       background: var(--item-bg);
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
-      padding: 0.45rem 0.6rem;
+      padding: 0.55rem 0.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.15rem;
+      gap: 0.2rem;
     }
 
     .stat-label {
-      font-size: 0.64rem;
+      font-size: 0.74rem;
       color: var(--text-muted);
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.4px;
     }
 
     .stat-value {
       font-family: 'Syne', sans-serif;
-      font-size: 1.2rem;
+      font-size: 1.55rem;
       font-weight: 900;
       line-height: 1.1;
     }
@@ -586,10 +594,10 @@
       background: var(--item-bg);
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
-      padding: 0.55rem 0.7rem;
+      padding: 0.65rem 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.45rem;
       flex-shrink: 0;
     }
 
@@ -601,16 +609,16 @@
 
     .audio-title {
       font-family: 'Syne', sans-serif;
-      font-size: 0.76rem;
+      font-size: 0.88rem;
       font-weight: 800;
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
       text-transform: uppercase;
     }
 
     .audio-status-pill {
-      font-size: 0.7rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: var(--text-muted);
     }
@@ -619,12 +627,12 @@
       display: flex;
       align-items: flex-end;
       gap: 2.5px;
-      height: 13px;
+      height: 15px;
     }
 
     .wave-bar {
-      width: 3px;
-      height: 3px;
+      width: 3.5px;
+      height: 3.5px;
       background: var(--dq-yellow);
     }
 
@@ -635,8 +643,8 @@
     .audio-playing .wave-bar:nth-child(5) { animation: waveAnim 0.8s infinite alternate ease-in-out 0.4s; }
 
     @keyframes waveAnim {
-      0% { height: 3px; background: var(--dq-yellow); }
-      100% { height: 13px; background: var(--dq-red); }
+      0% { height: 3.5px; background: var(--dq-yellow); }
+      100% { height: 15px; background: var(--dq-red); }
     }
 
     /* =========================================================
@@ -644,28 +652,28 @@
        ========================================================= */
     .tabs-wrapper {
       border-bottom: var(--border-thick);
-      padding-bottom: 0.45rem;
+      padding-bottom: 0.55rem;
       flex-shrink: 0;
     }
 
     .tabs {
       display: flex;
-      gap: 0.35rem;
+      gap: 0.45rem;
       flex-wrap: wrap; /* Prevents overflow clipping */
       align-items: center;
     }
 
     .tab-btn {
-      padding: 0.38rem 0.65rem;
+      padding: 0.48rem 0.85rem;
       background: var(--item-bg);
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
       color: var(--text-muted);
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 800;
-      font-size: 0.76rem;
+      font-size: 0.9rem;
       text-transform: uppercase;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.3px;
       cursor: pointer;
       white-space: nowrap;
     }
@@ -688,6 +696,7 @@
       min-height: 0;
       overflow-y: auto;
       padding-right: 4px;
+      height: 100%;
     }
 
     .tab-content.active {
@@ -704,15 +713,17 @@
     /* Code & Markdown Viewers */
     .code-viewer {
       background: var(--code-bg);
-      padding: 1.15rem;
+      padding: 1.35rem;
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.88rem;
+      font-size: 1.06rem;
       color: var(--code-text);
       white-space: pre-wrap;
-      line-height: 1.6;
+      line-height: 1.7;
       flex: 1;
+      height: 100%;
+      min-height: 0;
       overflow: auto;
       margin: 0;
     }
@@ -720,19 +731,19 @@
     .viewer-toolbar {
       display: flex;
       justify-content: flex-end;
-      gap: 0.45rem;
-      margin-bottom: 0.4rem;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
       flex-shrink: 0;
     }
 
     .toolbar-btn {
-      padding: 0.28rem 0.65rem;
+      padding: 0.35rem 0.8rem;
       background: var(--item-bg);
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
       color: var(--text);
       font-family: inherit;
-      font-size: 0.74rem;
+      font-size: 0.84rem;
       font-weight: 800;
       text-transform: uppercase;
       cursor: pointer;
@@ -747,9 +758,10 @@
     .provenance-list {
       display: flex;
       flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.65rem;
       overflow-y: auto;
       flex: 1;
+      min-height: 0;
     }
 
     .prov-item {
@@ -757,10 +769,10 @@
       border: var(--border-thick);
       border-left: 5px solid var(--dq-yellow);
       box-shadow: var(--shadow-brutal-sm);
-      padding: 0.75rem 0.95rem;
+      padding: 0.85rem 1.05rem;
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.4rem;
     }
 
     .prov-item.flagged {
@@ -772,15 +784,15 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.75rem;
+      font-size: 0.84rem;
     }
 
     .prov-type {
       font-family: 'Syne', sans-serif;
       font-weight: 900;
       text-transform: uppercase;
-      font-size: 0.7rem;
-      padding: 0.15rem 0.45rem;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.55rem;
       border: 1.5px solid #000000;
       background: var(--dq-yellow);
       color: #000000;
@@ -788,15 +800,15 @@
 
     .prov-coords {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: var(--text-muted);
     }
 
     .prov-content {
-      font-size: 0.88rem;
+      font-size: 1.02rem;
       color: var(--text);
-      line-height: 1.45;
+      line-height: 1.55;
     }
 
     #anomaly-summary {
@@ -804,20 +816,20 @@
       border: var(--border-thick);
       border-left: 6px solid var(--dq-yellow);
       box-shadow: var(--shadow-brutal-sm);
-      padding: 0.85rem;
-      margin-bottom: 0.65rem;
+      padding: 0.95rem 1.15rem;
+      margin-bottom: 0.75rem;
       flex-shrink: 0;
     }
 
     /* Markdown block tooltip */
     .md-block {
       position: relative;
-      padding: 0.5rem 0.7rem;
-      margin-bottom: 0.4rem;
+      padding: 0.6rem 0.85rem;
+      margin-bottom: 0.45rem;
       border-left: 3px solid transparent;
       white-space: pre-wrap;
-      font-size: 0.9rem;
-      line-height: 1.55;
+      font-size: 1.04rem;
+      line-height: 1.65;
     }
 
     .md-block:hover {
@@ -832,12 +844,12 @@
       border-left: 5px solid var(--dq-blue);
       box-shadow: var(--shadow-brutal);
       color: var(--text);
-      padding: 0.85rem;
-      font-size: 0.85rem;
-      line-height: 1.5;
+      padding: 0.95rem 1.15rem;
+      font-size: 0.95rem;
+      line-height: 1.55;
       width: 100%;
-      margin-top: 0.55rem;
-      margin-bottom: 0.35rem;
+      margin-top: 0.65rem;
+      margin-bottom: 0.45rem;
       white-space: normal;
     }
 
@@ -846,25 +858,25 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-      gap: 0.65rem;
+      gap: 0.75rem;
       min-height: 0;
     }
 
     .chat-input-row {
       display: flex;
-      gap: 0.55rem;
+      gap: 0.65rem;
       flex-shrink: 0;
     }
 
     .chat-input {
       flex: 1;
-      padding: 0.65rem 0.95rem;
+      padding: 0.75rem 1.05rem;
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
       background: var(--input-bg);
       color: var(--text);
       font-family: inherit;
-      font-size: 0.88rem;
+      font-size: 0.98rem;
       font-weight: 600;
       outline: none;
     }
@@ -876,7 +888,7 @@
     .chat-stream {
       display: flex;
       flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.65rem;
       flex: 1;
       min-height: 0;
       overflow-y: auto;
@@ -885,22 +897,22 @@
 
     .suggestions-section {
       border-top: var(--border-thick);
-      padding-top: 0.65rem;
+      padding-top: 0.75rem;
       flex: 0 0 auto;
-      max-height: 220px;
+      max-height: 250px;
       overflow-y: auto;
       padding-right: 0.25rem;
     }
 
     .section-title {
       font-family: 'Syne', sans-serif;
-      font-size: 0.82rem;
+      font-size: 0.92rem;
       font-weight: 800;
-      margin-bottom: 0.45rem;
+      margin-bottom: 0.5rem;
       color: var(--text);
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.45rem;
       text-transform: uppercase;
     }
 
@@ -908,7 +920,7 @@
     .eng-dashboard {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.1rem;
       padding-bottom: 1rem;
       flex-shrink: 0;
     }
@@ -918,7 +930,7 @@
       color: #ffffff;
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
-      padding: 0.75rem 1rem;
+      padding: 0.85rem 1.15rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -927,29 +939,29 @@
     .eng-banner-title {
       font-family: 'Syne', sans-serif;
       font-weight: 900;
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       text-transform: uppercase;
       display: flex;
       align-items: center;
-      gap: 0.45rem;
+      gap: 0.5rem;
     }
 
     .eng-section {
       background: var(--item-bg);
       border: var(--border-thick);
       box-shadow: var(--shadow-brutal-sm);
-      padding: 0.95rem;
+      padding: 1.05rem;
     }
 
     .eng-section-title {
       font-family: 'Syne', sans-serif;
-      font-size: 0.9rem;
+      font-size: 1rem;
       font-weight: 800;
       color: var(--text);
       text-transform: uppercase;
-      margin-bottom: 0.65rem;
+      margin-bottom: 0.75rem;
       border-bottom: var(--border-thick);
-      padding-bottom: 0.4rem;
+      padding-bottom: 0.45rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -958,14 +970,14 @@
     .eng-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.85rem;
+      font-size: 0.92rem;
       background: var(--card-bg);
       border: var(--border-thick);
     }
 
     .eng-table th, .eng-table td {
       border: var(--border-thin);
-      padding: 0.5rem 0.65rem;
+      padding: 0.55rem 0.75rem;
       text-align: left;
     }
 
@@ -1112,7 +1124,7 @@
               Regenerate
             </button>
           </div>
-          <audio id="audio-player" controls style="width: 100%; height: 30px; border: var(--border-thin);"></audio>
+          <audio id="audio-player" controls style="width: 100%; height: 36px; border: var(--border-thin);"></audio>
           <div class="audio-status-pill" id="audio-status">Auto-synthesizes on parse</div>
         </div>
       </div>
@@ -1186,7 +1198,7 @@ Upload any document on the left panel to begin live deterministic extraction.
           <div class="prov-header">
             <span class="prov-type" style="background: var(--dq-yellow); color: #000000;">AI ANOMALY SUMMARY</span>
           </div>
-          <div class="prov-content" id="anomaly-summary-content" style="margin-top: 0.4rem; font-weight: 700; font-size: 0.88rem;"></div>
+          <div class="prov-content" id="anomaly-summary-content" style="margin-top: 0.45rem; font-weight: 700; font-size: 1.02rem;"></div>
         </div>
         <div class="provenance-list" id="anomalies-list">
           <div class="prov-item">
@@ -1202,7 +1214,7 @@ Upload any document on the left panel to begin live deterministic extraction.
             <div class="section-title">💬 Ask Document in Natural Language</div>
             <div class="chat-input-row">
               <input type="text" id="chat-input" class="chat-input" placeholder="Ask anything about the ingested document...">
-              <button class="btn btn-primary" type="button" onclick="askCustomQuestion()" id="btn-ask-custom" disabled style="width: auto; padding: 0.65rem 1.25rem;">
+              <button class="btn btn-primary" type="button" onclick="askCustomQuestion()" id="btn-ask-custom" disabled style="width: auto; padding: 0.75rem 1.45rem;">
                 Ask ❯
               </button>
             </div>
@@ -1212,10 +1224,10 @@ Upload any document on the left panel to begin live deterministic extraction.
 
           <div class="suggestions-section">
             <div class="section-title">💡 Suggested Next Questions</div>
-            <div id="qa-list" style="display: flex; flex-direction: column; gap: 0.45rem;">
+            <div id="qa-list" style="display: flex; flex-direction: column; gap: 0.55rem;">
                Waiting for document...
             </div>
-            <button class="btn btn-secondary" id="btn-qa" type="button" onclick="generateQA()" style="margin-top: 0.65rem; max-width: 240px;" disabled>
+            <button class="btn btn-secondary" id="btn-qa" type="button" onclick="generateQA()" style="margin-top: 0.75rem; max-width: 270px; padding: 0.6rem 1rem;" disabled>
               🔄 Regenerate Suggestions
             </button>
           </div>
@@ -1781,11 +1793,11 @@ Upload any document on the left panel to begin live deterministic extraction.
               div.className = "prov-item";
               div.style.cursor = "pointer";
               div.innerHTML = `
-                <div class="prov-content" style="font-weight:700; display:flex; justify-content:space-between; align-items:center; gap:0.5rem;">
+                <div class="prov-content" style="font-weight:700; display:flex; justify-content:space-between; align-items:center; gap:0.6rem; font-size:1.02rem;">
                   <span>${qText}</span>
-                  <span style="font-size:0.74rem; color:var(--dq-yellow); font-weight:800; white-space:nowrap; flex-shrink:0;">Ask ❯</span>
+                  <span style="font-size:0.86rem; color:var(--dq-yellow); font-weight:800; white-space:nowrap; flex-shrink:0;">Ask ❯</span>
                 </div>
-                <div class="answer-box" style="display:none; margin-top:0.45rem; padding-top:0.45rem; border-top:var(--border-thin); color:var(--text); font-size:0.84rem; line-height:1.45;"></div>
+                <div class="answer-box" style="display:none; margin-top:0.5rem; padding-top:0.5rem; border-top:var(--border-thin); color:var(--text); font-size:0.96rem; line-height:1.5;"></div>
               `;
               div.onclick = () => askQuestion(qText, div);
               list.appendChild(div);
@@ -1794,7 +1806,7 @@ Upload any document on the left panel to begin live deterministic extraction.
         }
       } catch (err) {
         if (list) {
-          list.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">Could not auto-generate questions. Ask above!</div>`;
+          list.innerHTML = `<div style="font-size:0.92rem; color:var(--text-muted);">Could not auto-generate questions. Ask above!</div>`;
         }
       } finally {
         if (btn) {
@@ -1818,11 +1830,11 @@ Upload any document on the left panel to begin live deterministic extraction.
       item.className = 'prov-item';
       item.innerHTML = `
         <div class="prov-header">
-          <span class="prov-type" style="background:var(--dq-yellow); color:#000000;">YOU</span>
+          <span class="prov-type" style="background:var(--dq-yellow); color:#000000; font-size:0.82rem;">YOU</span>
         </div>
-        <div class="prov-content" style="margin-top:0.25rem; font-weight:700; font-size:0.88rem;">${question}</div>
-        <div class="answer-box" style="margin-top:0.45rem; padding-top:0.45rem; border-top:var(--border-thin); color:var(--text); font-size:0.85rem; line-height:1.5;">
-          <span class="spinner" style="width:10px; height:10px; border-width:1.5px; vertical-align:middle; margin-right:3px;"></span> Thinking...
+        <div class="prov-content" style="margin-top:0.35rem; font-weight:700; font-size:1.04rem;">${question}</div>
+        <div class="answer-box" style="margin-top:0.55rem; padding-top:0.55rem; border-top:var(--border-thin); color:var(--text); font-size:0.98rem; line-height:1.55;">
+          <span class="spinner" style="width:12px; height:12px; border-width:2px; vertical-align:middle; margin-right:4px;"></span> Thinking...
         </div>
       `;
       history.appendChild(item);
@@ -1846,7 +1858,7 @@ Upload any document on the left panel to begin live deterministic extraction.
           const data = await res.json();
           answerBox.innerHTML = `<strong>Answer:</strong> ${data.answer}`;
           if (data.unsupported_claims && data.unsupported_claims.length > 0) {
-            answerBox.innerHTML += `<br><small style="color:var(--dq-red); font-weight:700; display:block; margin-top:0.3rem;">⚠️ Potential hallucination detected: ${data.unsupported_claims.join(", ")}</small>`;
+            answerBox.innerHTML += `<br><small style="color:var(--dq-red); font-weight:700; display:block; margin-top:0.35rem; font-size:0.88rem;">⚠️ Potential hallucination detected: ${data.unsupported_claims.join(", ")}</small>`;
           }
         } else {
           answerBox.textContent = "Failed to retrieve an answer.";
@@ -1873,7 +1885,7 @@ Upload any document on the left panel to begin live deterministic extraction.
       }
       
       answerBox.style.display = "block";
-      answerBox.innerHTML = `<span style="color:var(--dq-green); font-weight:800; font-size:0.75rem;">✓ Asked in conversation above ⬆</span>`;
+      answerBox.innerHTML = `<span style="color:var(--dq-green); font-weight:800; font-size:0.88rem;">✓ Asked in conversation above ⬆</span>`;
       answerBox.dataset.answered = "true";
       
       await askCustomQuestion(question);

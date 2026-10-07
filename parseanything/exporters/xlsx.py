@@ -21,34 +21,42 @@ class XlsxExporter(Exporter):
             cell.font = header_font
             cell.fill = header_fill
             
+        has_tables = False
         table_idx = 1
         for page in doc.pages:
             for block in page.blocks:
-                if block.table and block.table.cells:
+                if block.type == "table":
+                    has_tables = True
                     sheet_name = f"Table_{table_idx}"
                     ws = wb.create_sheet(title=sheet_name)
                     sources_sheet.append([sheet_name, page.number, block.id])
                     
-                    for cell in block.table.cells:
-                        # Convert to 1-based index for openpyxl
-                        r = cell.row + 1
-                        c = cell.col + 1
-                        ws_cell = ws.cell(row=r, column=c, value=cell.text)
-                        
-                        if getattr(cell, 'is_header', False):
-                            ws_cell.font = header_font
-                            ws_cell.fill = header_fill
-                            
-                        # Handle spans
-                        if cell.rowspan > 1 or cell.colspan > 1:
-                            ws.merge_cells(
-                                start_row=r, start_column=c,
-                                end_row=r + cell.rowspan - 1, end_column=c + cell.colspan - 1
-                            )
-                            
+                    if block.table and block.table.cells:
+                        for cell in block.table.cells:
+                            r = cell.row + 1
+                            c = cell.col + 1
+                            ws_cell = ws.cell(row=r, column=c, value=cell.text)
+                            if getattr(cell, 'is_header', False):
+                                ws_cell.font = header_font
+                                ws_cell.fill = header_fill
+                            if cell.rowspan > 1 or cell.colspan > 1:
+                                ws.merge_cells(
+                                    start_row=r, start_column=c,
+                                    end_row=r + cell.rowspan - 1, end_column=c + cell.colspan - 1
+                                )
+                    elif block.table and block.table.markdown:
+                        ws.append(["Extracted Markdown:"])
+                        for row_txt in block.table.markdown.split('\n'):
+                            ws.append([row_txt])
+                    else:
+                        ws.append(["Table content could not be structured into cells."])
+                        if block.content:
+                            for row_txt in block.content.split('\n'):
+                                ws.append([row_txt])
+                                
                     table_idx += 1
                     
-        if not wb.sheetnames:
+        if not has_tables:
             ws = wb.create_sheet(title="Empty")
             ws.append(["No tables found in this document."])
             

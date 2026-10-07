@@ -1183,7 +1183,19 @@ Features:
       }
 
       currentDocData = aggregatedDoc;
-      document.getElementById('btn-excel').disabled = false;
+      
+      let hasTables = false;
+      if (aggregatedDoc.pages) {
+        aggregatedDoc.pages.forEach(p => {
+          if (p.blocks) {
+            p.blocks.forEach(b => {
+              if (b.type === 'table') hasTables = true;
+            });
+          }
+        });
+      }
+      
+      document.getElementById('btn-excel').disabled = !hasTables;
       document.getElementById('btn-tts').disabled = false;
       document.getElementById('btn-qa').disabled = false;
       document.getElementById('btn-ask-custom').disabled = false;

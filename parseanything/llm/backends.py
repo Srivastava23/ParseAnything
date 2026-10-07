@@ -18,12 +18,12 @@ class OllamaLLMBackend(LLMBackend):
 
     def generate(self, prompt: str) -> str:
         if self._has_pkg:
-            res = self.client.generate(model=self.model, prompt=prompt)
+            res = self.client.generate(model=self.model, prompt=prompt, options={"num_predict": 1024, "temperature": 0.0})
             return res['response']
         else:
             import urllib.request
             import urllib.error
-            data = json.dumps({"model": self.model, "prompt": prompt, "stream": False}).encode("utf-8")
+            data = json.dumps({"model": self.model, "prompt": prompt, "stream": False, "options": {"num_predict": 1024, "temperature": 0.0}}).encode("utf-8")
             req = urllib.request.Request(f"{self.base_url}/api/generate", data=data, headers={"Content-Type": "application/json"})
             try:
                 with urllib.request.urlopen(req) as response:
@@ -37,7 +37,7 @@ class OllamaLLMBackend(LLMBackend):
         json_schema = schema.model_json_schema() if is_pydantic else schema
         
         if self._has_pkg:
-            res = self.client.generate(model=self.model, prompt=prompt, format=json_schema)
+            res = self.client.generate(model=self.model, prompt=prompt, format=json_schema, options={"num_predict": 1024, "temperature": 0.0})
             response_text = res['response']
         else:
             import urllib.request
@@ -45,7 +45,8 @@ class OllamaLLMBackend(LLMBackend):
                 "model": self.model, 
                 "prompt": prompt, 
                 "stream": False,
-                "format": json_schema
+                "format": json_schema,
+                "options": {"num_predict": 1024, "temperature": 0.0}
             }).encode("utf-8")
             print("Sending to Ollama:", data)
             req = urllib.request.Request(f"{self.base_url}/api/generate", data=data, headers={"Content-Type": "application/json"})

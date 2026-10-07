@@ -14,9 +14,8 @@ class DomainClassifier:
                     self.profiles[data["name"]] = data
                     
     def classify(self, doc: Document) -> str:
-        # Extract text from first 5 pages
         text_snippets = []
-        for page in doc.pages[:5]:
+        for page in doc.pages[:3]:
             for block in page.blocks:
                 if block.type in ["paragraph", "heading"]:
                     text_snippets.append(block.content.lower())
@@ -25,16 +24,24 @@ class DomainClassifier:
         if not full_text.strip():
             return "general"
             
-        best_match = "general"
-        max_score = 0
+        from parseanything.registry import get_llm_backend
+        from pydantic import BaseModel
         
-        for name, profile in self.profiles.items():
-            if name == "general":
-                continue
-            keywords = profile.get("keywords", [])
-            score = sum(1 for kw in keywords if kw.lower() in full_text)
-            if score > max_score:
-                max_score = score
-                best_match = name
-                
-        return best_match
+        class ClassificationResponse(BaseModel):
+            domain: str
+            
+        llm = get_llm_backend("ollama")
+        if not llm:
+            return "general"
+            
+        available_domains = [name for name in self.profiles.keys() if name != "general"]
+        prompt = f"Analyze the following document text and classify its domain into exactly one of these categories: {available_domains}. If it does not strongly fit any of these, return 'general'. Output JSON with a 'domain' key.\n\nText:\n{full_text[:3000]}"
+        
+        try:
+            res = llm.generate_json(prompt, ClassificationResponse)
+            detected = res.domain.lower()
+            if detected in self.profiles:
+                return detected
+            return "general"
+        except Exception:
+            return "general"

@@ -85,6 +85,51 @@ class ConfidenceRule(AnomalyRule):
                     ))
         return anomalies
 
+class SemanticAnomalyRule(AnomalyRule):
+    name = "semantic_anomaly"
+    
+    def evaluate(self, doc: Document) -> list[Anomaly]:
+        anomalies = []
+        from parseanything.config import Options
+        from parseanything.registry import get_llm_backend
+        opts = Options()
+        llm = get_llm_backend("ollama")
+        if not llm:
+            from parseanything.llm.backends import OllamaLLMBackend
+            llm = OllamaLLMBackend(opts)
+            
+        # Only analyze if we have text
+        full_text = " ".join([b.content for p in doc.pages for b in p.blocks if getattr(b, 'content', None)])
+        if not full_text.strip() or len(full_text) > 4000: # limit to avoid huge requests
+            full_text = full_text[:4000]
+            
+        prompt = (
+            "Analyze the following text for any logical contradictions, suspicious claims, or data anomalies. "
+            "Return a JSON array of objects, each containing 'explanation' and 'severity' ('high' or 'medium'). "
+            f"Text: {full_text}"
+        )
+        from pydantic import BaseModel
+        class AnomalyItem(BaseModel):
+            explanation: str
+            severity: str
+        class AnomalyList(BaseModel):
+            anomalies: list[AnomalyItem]
+            
+        try:
+            res = llm.generate_json(prompt, AnomalyList)
+            for a in res.anomalies:
+                anomalies.append(Anomaly(
+                    rule=self.name,
+                    severity=a.severity,
+                    explanation=a.explanation,
+                    block_ids=[]
+                ))
+        except Exception:
+            pass
+            
+        return anomalies
+
 register_anomaly_rule(TableMathRule())
 register_anomaly_rule(MissingPageRule())
 register_anomaly_rule(ConfidenceRule())
+register_anomaly_rule(SemanticAnomalyRule())

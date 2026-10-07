@@ -10,7 +10,7 @@ core:
 backends:
   ocr: rapidocr
   layout: docling
-  vlm: stub_vlm
+  vlm: vlm_local
 
 costs:
   ocr_cost_per_page: 0.0015
@@ -20,7 +20,7 @@ costs:
 # (Agent 2 will fill these in)
 llm:
   backend: ollama
-  model: llama3
+  model: llama3.2:1b
 
 retrieval:
   use_vector: false

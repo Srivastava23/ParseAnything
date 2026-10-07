@@ -12,23 +12,72 @@ keywords:
   - microservices
   - software
   - REST API
+  - GraphQL
+  - primary key
+  - foreign key
+  - JWT
+  - OAuth
+  - RCA
+  - root cause
+  - dependency
+  - SLA
+  - downtime
+  - latency
+  - Kubernetes
+  - Docker
+  - AWS
+  - CI/CD
+  - cluster
+  - replication
+  - failover
 schema:
   type: object
   properties:
-    system_name:
-      type: string
-    architecture_type:
-      type: string
-    technologies_used:
+    architecture_components:
       type: array
       items:
-        type: string
-    endpoints:
+        type: object
+        properties:
+          name: {type: string}
+          type: {type: string}
+          description: {type: string}
+    dependencies:
       type: array
       items:
-        type: string
-    database_tables:
+        type: object
+        properties:
+          source: {type: string}
+          target: {type: string}
+          relation_type: {type: string}
+    impact_analysis:
       type: array
       items:
-        type: string
-  required: [system_name]
+        type: object
+        properties:
+          changed_component: {type: string}
+          blast_radius:
+            type: array
+            items: {type: string}
+          risk_level: {type: string}
+    apis_and_databases:
+      type: array
+      items:
+        type: object
+        properties:
+          name: {type: string}
+          type: {type: string}
+          endpoints_or_tables:
+            type: array
+            items: {type: string}
+    incidents:
+      type: array
+      items:
+        type: object
+        properties:
+          symptoms: {type: string}
+          root_cause: {type: string}
+          timeline:
+            type: array
+            items: {type: string}
+          resolution: {type: string}
+  required: []

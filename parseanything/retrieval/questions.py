@@ -12,31 +12,36 @@ def generate_next_questions(doc: Document) -> list[str]:
         "What is the overall tone or sentiment?"
     ]
     
-    llm = get_llm_backend("ollama")
-    if not llm:
-        return fallback_questions
+    from parseanything.config import Options
+    from parseanything.llm.backends import OllamaLLMBackend, OpenAILLMBackend
+    opts = Options()
+    if opts.llm.backend == "openai":
+        llm = OpenAILLMBackend(opts)
+    else:
+        llm = OllamaLLMBackend(opts)
         
     domain = doc.analysis.get("domain", "general")
     
-    # Try to extract actual custom topics from the document if available
-    topics = []
-    for page in doc.pages[:2]:
+    # Extract excerpt of text from document blocks
+    texts = []
+    for page in doc.pages[:3]:
         for block in page.blocks:
-            if block.type == "heading" and len(block.content) > 5:
-                topics.append(block.content)
+            if block.content and block.content.strip():
+                texts.append(block.content.strip())
+    doc_excerpt = "\n".join(texts)[:1200]
     
-    prompt = f"Based on this document which is identified as '{domain}' domain, suggest exactly 3 to 5 relevant follow-up questions the user might want to ask about its contents. Return a JSON array of strings."
+    prompt = f"""Given the following document text (classified as '{domain}' domain):
+---
+{doc_excerpt}
+---
+
+Suggest exactly 3 to 4 specific, insightful questions that a user would naturally ask about this document. Return JSON matching the schema."""
     
     try:
         result = llm.generate_json(prompt, QuestionsResponse)
         if hasattr(result, "questions") and len(result.questions) > 0:
             return result.questions
         return fallback_questions
-    except Exception:
-        if topics:
-            return [
-                f"What are the key takeaways regarding {topics[0]}?",
-                f"Can you provide more details about {topics[1] if len(topics) > 1 else 'the main subject'}?",
-                "What is the overall conclusion of this document?"
-            ]
+    except Exception as e:
+        print(f"LLM Error generating questions: {e}")
         return fallback_questions

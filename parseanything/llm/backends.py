@@ -33,21 +33,36 @@ class OllamaLLMBackend(LLMBackend):
                 return f"Error: {str(e)}"
 
     def generate_json(self, prompt: str, schema: Any) -> Any:
+        is_pydantic = hasattr(schema, 'model_json_schema')
+        json_schema = schema.model_json_schema() if is_pydantic else schema
+        
         if self._has_pkg:
-            res = self.client.generate(model=self.model, prompt=prompt, format=schema.model_json_schema())
-            return schema.model_validate_json(res['response'])
+            res = self.client.generate(model=self.model, prompt=prompt, format=json_schema)
+            response_text = res['response']
         else:
             import urllib.request
             data = json.dumps({
                 "model": self.model, 
                 "prompt": prompt, 
                 "stream": False,
-                "format": schema.model_json_schema()
+                "format": json_schema
             }).encode("utf-8")
+            print("Sending to Ollama:", data)
             req = urllib.request.Request(f"{self.base_url}/api/generate", data=data, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req) as response:
-                res = json.loads(response.read().decode())
-                return schema.model_validate_json(res.get("response", "{}"))
+            try:
+                with urllib.request.urlopen(req) as response:
+                    res = json.loads(response.read().decode())
+                    response_text = res.get("response", "{}")
+            except Exception as e:
+                print("Ollama request failed:", e)
+                if hasattr(e, 'read'):
+                    print("Ollama error body:", e.read().decode())
+                raise e
+                
+        if is_pydantic:
+            return schema.model_validate_json(response_text)
+        else:
+            return json.loads(response_text)
 
 class OpenAILLMBackend(LLMBackend):
     name = "openai"

@@ -306,3 +306,42 @@ def tts_endpoint(background_tasks: BackgroundTasks, doc: dict = Body(...)):
             
     background_tasks.add_task(cleanup)
     return FileResponse(temp_path, media_type="audio/mpeg")
+
+class CompareRequest(BaseModel):
+    doc_a_markdown: str
+    doc_b_markdown: str
+
+@app.post("/compare-engineering")
+def compare_engineering_endpoint(req: CompareRequest):
+    from parseanything.config import Options
+    from parseanything.registry import get_llm_backend
+    opts = Options()
+    llm = get_llm_backend("ollama")
+    if not llm:
+        from parseanything.llm.backends import OllamaLLMBackend
+        llm = OllamaLLMBackend(opts)
+        
+    prompt = f"""Compare the following two versions of an engineering document. Identify and summarize the architectural drifts, API contract changes, or schema modifications between them. Output a JSON object containing a list of 'changes', where each change has a 'component', 'change_type' (Added, Removed, Modified), and 'description'.
+
+Version A:
+{req.doc_a_markdown[:10000]}
+
+Version B:
+{req.doc_b_markdown[:10000]}
+"""
+    
+    from pydantic import BaseModel
+    from typing import List
+    class Change(BaseModel):
+        component: str
+        change_type: str
+        description: str
+        
+    class ComparisonResult(BaseModel):
+        changes: List[Change]
+        
+    try:
+        res = llm.generate_json(prompt, ComparisonResult)
+        return JSONResponse(content={"changes": [c.model_dump() for c in res.changes]})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)

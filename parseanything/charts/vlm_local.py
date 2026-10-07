@@ -21,7 +21,7 @@ class LocalVLMBackend:
         
         try:
             resp = requests.post(self.url, json={
-                "model": "qwen2.5-vl-7b",
+                "model": "llava",
                 "prompt": prompt,
                 "images": [img_str],
                 "stream": False,

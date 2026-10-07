@@ -13,7 +13,9 @@ The engine supports a fully automated document ingestion pipeline with the follo
 5. **Typed Semantic Blocks:** Extracts headings, paragraphs, lists, tables, figures, charts, and equations.
 6. **Complex Tables & Excel Export:** Reconstructs merged cells and multi-row headers. Instantly download extracted tables as Excel workbooks.
 7. **PII Redaction:** Detects and pseudonyms/masks Sensitive Data (PAN, Aadhaar, etc.) directly in the structured JSON and Markdown.
-8. **Anomaly Detection:** Flags mathematical inconsistencies in tables, missing pages, and low OCR confidence scores.
+8. **Intelligent LLM Domain Classification:** Automatically analyzes text to detect domains (Engineering, Financial, Legal) using LLM reasoning instead of basic keywords.
+9. **Advanced Engineering Mode:** When an engineering document is detected, the UI instantly generates an interactive dashboard featuring a Mermaid.js Dependency Map, Architecture Components, API/Database Extraction, Incident/RCA Timelines, and Impact Analysis.
+10. **Anomaly Detection:** Flags mathematical inconsistencies in tables, missing pages, and low OCR confidence scores.
 
 ## 🚀 Quick Start
 

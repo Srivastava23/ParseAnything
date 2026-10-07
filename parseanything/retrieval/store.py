@@ -122,4 +122,19 @@ class SQLiteRetriever(Retriever):
                             "path": scores[bid]["path"]
                         })
                         break
+
+        # Fallback: If no keyword match or for broad questions, return document blocks
+        if not results:
+            for page in self.doc.pages:
+                for block in page.blocks:
+                    results.append({
+                        "block": block,
+                        "score": 0.5,
+                        "path": f"Page {page.number}"
+                    })
+                    if len(results) >= k:
+                        break
+                if len(results) >= k:
+                    break
+
         return results

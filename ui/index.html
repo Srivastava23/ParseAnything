@@ -1147,6 +1147,7 @@
         <div id="domain-container"></div>
         <div class="viewer-toolbar">
           <button class="toolbar-btn" type="button" onclick="copyViewerContent('md-viewer')">📋 Copy Markdown</button>
+          <button class="toolbar-btn" type="button" onclick="downloadViewerContent('md-viewer', 'markdown.md')">⬇️ Download MD</button>
         </div>
         <div class="code-viewer" id="md-viewer"># Welcome to ParseAnything Universal Ingestion Engine
 [DATAQUEST 3.0 OFFICIAL HACKATHON EDITION]
@@ -1166,6 +1167,7 @@ Upload any document on the left panel to begin live deterministic extraction.
       <div class="tab-content" id="tab-json">
         <div class="viewer-toolbar">
           <button class="toolbar-btn" type="button" onclick="copyViewerContent('json-viewer')">📋 Copy JSON</button>
+          <button class="toolbar-btn" type="button" onclick="downloadViewerContent('json-viewer', 'data.json')">⬇️ Download JSON</button>
         </div>
         <pre class="code-viewer" id="json-viewer">{
   "status": "ready",
@@ -1939,6 +1941,21 @@ Upload any document on the left panel to begin live deterministic extraction.
       }).catch(() => {
         alert("Failed to copy.");
       });
+    }
+
+    function downloadViewerContent(elementId, filename) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const text = el.innerText || el.textContent;
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename || 'download.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>

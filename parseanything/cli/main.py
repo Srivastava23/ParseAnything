@@ -17,12 +17,14 @@ def run_parse(
     ocr_backend: str = "rapidocr",
     no_vlm: bool = False
 ):
+    from parseanything.config import CoreOptions, BackendOptions
     opts = Options(
-        workers=workers,
-        ocr_backend=ocr_backend,
-        vlm_backend="stub_vlm" if no_vlm else "vlm"
+        core=CoreOptions(workers=workers),
+        backends=BackendOptions(
+            ocr=ocr_backend,
+            vlm="stub_vlm" if no_vlm else "vlm"
+        )
     )
-    
     try:
         doc = parse(path, options=opts)
         
@@ -73,6 +75,14 @@ try:
         no_vlm: bool = typer.Option(False, "--no-vlm", help="Disable VLM usage")
     ):
         run_parse(path, out, format, workers, ocr_backend, no_vlm)
+
+    @app.command("serve")
+    def typer_serve_cmd(
+        host: str = typer.Option("127.0.0.1", "--host", help="Host to bind"),
+        port: int = typer.Option(8000, "--port", help="Port to bind")
+    ):
+        import uvicorn
+        uvicorn.run("parseanything.api.server:app", host=host, port=port, reload=True)
 except ImportError:
     app = None
 
@@ -91,6 +101,10 @@ def main():
         parse_p.add_argument("--ocr-backend", default="rapidocr", help="OCR backend")
         parse_p.add_argument("--no-vlm", action="store_true", help="Disable VLM")
 
+        serve_p = subparsers.add_parser("serve", help="Start the API server")
+        serve_p.add_argument("--host", default="127.0.0.1")
+        serve_p.add_argument("--port", type=int, default=8000)
+
         # Also support direct arguments without 'parse' subcommand
         parser.add_argument("path_direct", nargs="?", help="Direct path to document")
         parser.add_argument("--out", "-o", help="Output directory")
@@ -100,6 +114,12 @@ def main():
         parser.add_argument("--no-vlm", action="store_true")
 
         args = parser.parse_args()
+        
+        if getattr(args, "command") == "serve":
+            import uvicorn
+            uvicorn.run("parseanything.api.server:app", host=args.host, port=args.port, reload=True)
+            sys.exit(0)
+            
         target_path = getattr(args, "path", None) or getattr(args, "path_direct", None)
         if not target_path or not args.out:
             parser.print_help()

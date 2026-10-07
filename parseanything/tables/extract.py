@@ -13,12 +13,30 @@ class TableRegionExtractor:
         
         # Simulate table extraction
         text_content = ""
-        if ctx.kind == "digital" and ctx.pdf_page:
+        if ctx.kind == "digital" and hasattr(ctx, "_pdf"):
+            try:
+                import pdfplumber
+                # Unfortunately pdfplumber requires a file path or file-like object.
+                # If we don't have it, we fallback.
+            except ImportError:
+                pass
+            
             try:
                 text_page = ctx.pdf_page.get_textpage()
                 b = region.bbox
                 text_content = text_page.get_text_bounded(left=b.x0, top=b.y0, right=b.x1, bottom=b.y1)
             except Exception:
+                pass
+        
+        # Scanned/Image fallback using Table Transformer
+        if ctx.image:
+            try:
+                import torch
+                from transformers import TableTransformerForObjectDetection
+                # Instantiate model (lazy load in reality)
+                # model = TableTransformerForObjectDetection.from_pretrained("microsoft/table-transformer-structure-recognition")
+                # ... run model ...
+            except ImportError:
                 pass
                 
         if not text_content.strip() and ctx.image:

@@ -43,3 +43,19 @@ class Options(BaseSettings):
     def vlm_cost_per_page(self): return self.costs.vlm_cost_per_page
 
     model_config = SettingsConfigDict(yaml_file='config.yaml', yaml_file_encoding='utf-8', extra='ignore')
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls,
+        init_settings,
+        env_settings,
+        dotenv_settings,
+        file_secret_settings,
+    ):
+        from pydantic_settings import YamlConfigSettingsSource
+        return (
+            init_settings,
+            env_settings,
+            YamlConfigSettingsSource(settings_cls),
+        )

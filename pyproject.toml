@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "parseanything"
+version = "0.1.0"
+description = "A high-fidelity universal document ingestion engine."
+dependencies = [
+    "pydantic>=2.0.0",
+    "fastapi>=0.100.0",
+    "typer>=0.9.0",
+    "uvicorn>=0.23.0",
+    "python-multipart>=0.0.6",
+]
+requires-python = ">=3.11"

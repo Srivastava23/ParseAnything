@@ -23,6 +23,8 @@ class XlsxParser(FormatParser):
         page_idx = 1
         block_idx = 1
         for sheet_name in wb.sheetnames:
+            if sheet_name == "Sources":
+                continue
             sheet = wb[sheet_name]
             page = Page(number=page_idx, width=0, height=0, kind="virtual")
             meta = {}

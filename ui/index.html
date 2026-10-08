@@ -92,6 +92,16 @@
       overflow: hidden;
     }
 
+    /* Custom Highlight for Searches */
+    ::selection {
+      background-color: var(--dq-yellow);
+      color: #000;
+    }
+    ::-moz-selection {
+      background-color: var(--dq-yellow);
+      color: #000;
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg);
@@ -1979,16 +1989,6 @@ Upload any document on the left panel to begin live deterministic extraction.
       // 1. Try fast native substring search first (handles partial words & exact matches instantly)
       const nativeFound = window.find(query, false, false, true, false, true, false);
       if (nativeFound) {
-        // Scroll the selected text into view explicitly
-        const sel = window.getSelection();
-        if (sel.rangeCount > 0) {
-            let node = sel.getRangeAt(0).startContainer;
-            if (node.nodeType === 3) node = node.parentElement; // Get the element wrapping the text node
-            if (node) {
-                node.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-        }
-        
         // Brief success feedback on the button
         const btn = document.getElementById(btnId);
         const originalText = btn.innerHTML;

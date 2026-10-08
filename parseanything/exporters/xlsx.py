@@ -59,6 +59,11 @@ class XlsxExporter(Exporter):
         if not has_tables:
             ws = wb.create_sheet(title="Empty")
             ws.append(["No tables found in this document."])
+            wb.active = ws
+        else:
+            # Set the first table as the active sheet instead of 'Sources'
+            # so the user immediately sees their data upon opening
+            wb.active = wb.worksheets[1] if len(wb.worksheets) > 1 else wb.worksheets[0]
             
         wb.save(output_path)
 

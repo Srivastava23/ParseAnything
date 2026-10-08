@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div id="content" style="height: 2000px; padding-top:1500px">Hello World, this is a test. Sebastiano is here. And Sebastiano is there.</div>
+  <input type="text" id="search" style="position:fixed;top:0;left:0;" onkeydown="if(event.key==='Enter') doSearch(this.value)">
+  <script>
+    function doSearch(query) {
+      const nativeFound = window.find(query, false, false, true, false, true, false);
+      const sel = window.getSelection();
+      console.log("Found:", nativeFound, "Node:", sel.anchorNode);
+    }
+  </script>
+</body>
+</html>

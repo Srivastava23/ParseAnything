@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <div id="content" style="height: 2000px; padding-top:1000px">Hello World, this is a test. Sebastiano is here. And Sebastiano is there.</div>
+  <input type="text" id="search" style="position:fixed;top:0;left:0;" onkeydown="if(event.key==='Enter') doSearch(this.value)">
+  <script>
+    function doSearch(query) {
+      window.getSelection().removeAllRanges();
+      const nativeFound = window.find(query, false, false, true, false, true, false);
+      if (nativeFound) {
+         const sel = window.getSelection();
+         if (sel.rangeCount > 0) {
+             const range = sel.getRangeAt(0);
+             const mark = document.createElement('mark');
+             mark.style.backgroundColor = 'yellow';
+             mark.style.color = 'black';
+             try {
+                range.surroundContents(mark);
+                mark.scrollIntoView({behavior: 'smooth', block: 'center'});
+             } catch(e) {
+                console.error(e);
+             }
+         }
+      }
+    }
+  </script>
+</body>
+</html>

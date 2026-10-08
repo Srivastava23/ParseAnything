@@ -345,3 +345,58 @@ Version B:
         return JSONResponse(content={"changes": [c.model_dump() for c in res.changes]})
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+class SearchRequest(BaseModel):
+    doc: dict
+    query: str
+
+@app.post("/search-document")
+def search_document_endpoint(req: SearchRequest):
+    from parseanything.schema import Document
+    from parseanything.registry import get_llm_backend
+    from parseanything.config import Options
+    from pydantic import BaseModel, Field
+    import json
+    
+    document = Document(**req.doc)
+    opts = Options()
+    llm = get_llm_backend("ollama")
+    if not llm:
+        from parseanything.llm.backends import OllamaLLMBackend
+        llm = OllamaLLMBackend(opts)
+        
+    texts = []
+    for p in document.pages:
+        if hasattr(p, 'blocks') and p.blocks:
+            for b in p.blocks:
+                if getattr(b, 'text', None):
+                    texts.append(b.text)
+                if getattr(b, 'table', None) and getattr(b.table, 'cells', None):
+                    for cell in b.table.cells:
+                        if cell.text:
+                            texts.append(cell.text)
+    
+    full_text = "\n".join(texts)
+    # limit text to ~10k chars to avoid blowing up the context window
+    if len(full_text) > 10000:
+        full_text = full_text[:10000]
+    
+    class SearchResponse(BaseModel):
+        found: bool = Field(description="True if the query matches something in the text")
+        exact_quote: str = Field(description="A short, EXACT quote (3 to 10 words) from the text that matches. Must be a verbatim substring so it can be found using string search.")
+        explanation: str = Field(description="A short explanation of what was found.")
+        
+    prompt = f"""You are a semantic search assistant. 
+The user is searching for: "{req.query}"
+Find the most relevant section in the text provided below. The user's query might have spelling mistakes or be phrased differently, use semantic matching.
+If you find a match, set "found" to true, explain briefly, and provide a short, EXACT quote (verbatim from the text, no modifications) so the UI can highlight it.
+If no relevant match exists, set "found" to false.
+
+Document Text:
+{full_text}
+"""
+
+    try:
+        res = llm.generate_json(prompt, SearchResponse)
+        return JSONResponse(content=res.model_dump())
+    except Exception as e:
+        return JSONResponse(content={"found": False, "error": str(e)}, status_code=500)

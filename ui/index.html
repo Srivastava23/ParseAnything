@@ -1148,6 +1148,10 @@
         <div class="viewer-toolbar">
           <button class="toolbar-btn" type="button" onclick="copyViewerContent('md-viewer')">📋 Copy Markdown</button>
           <button class="toolbar-btn" type="button" onclick="downloadViewerContent('md-viewer', 'markdown.md')">⬇️ Download MD</button>
+          <div style="margin-left: auto; display: flex; gap: 0.5rem; align-items: center;">
+            <input type="text" id="md-search-input" class="chat-input" placeholder="Semantic search..." style="padding: 0.3rem 0.5rem; width: 180px; font-size: 0.8rem;" onkeydown="if(event.key==='Enter') runSemanticSearch(this.value, 'md-search-btn')" title="Use natural language. Handles typos natively!">
+            <button class="toolbar-btn" type="button" id="md-search-btn" onclick="runSemanticSearch(document.getElementById('md-search-input').value, 'md-search-btn')">🧠 Llama Search</button>
+          </div>
         </div>
         <div class="code-viewer" id="md-viewer"># Welcome to ParseAnything Universal Ingestion Engine
 [DATAQUEST 3.0 OFFICIAL HACKATHON EDITION]
@@ -1168,6 +1172,10 @@ Upload any document on the left panel to begin live deterministic extraction.
         <div class="viewer-toolbar">
           <button class="toolbar-btn" type="button" onclick="copyViewerContent('json-viewer')">📋 Copy JSON</button>
           <button class="toolbar-btn" type="button" onclick="downloadViewerContent('json-viewer', 'data.json')">⬇️ Download JSON</button>
+          <div style="margin-left: auto; display: flex; gap: 0.5rem; align-items: center;">
+            <input type="text" id="json-search-input" class="chat-input" placeholder="Semantic search..." style="padding: 0.3rem 0.5rem; width: 180px; font-size: 0.8rem;" onkeydown="if(event.key==='Enter') runSemanticSearch(this.value, 'json-search-btn')" title="Use natural language. Handles typos natively!">
+            <button class="toolbar-btn" type="button" id="json-search-btn" onclick="runSemanticSearch(document.getElementById('json-search-input').value, 'json-search-btn')">🧠 Llama Search</button>
+          </div>
         </div>
         <pre class="code-viewer" id="json-viewer">{
   "status": "ready",
@@ -1959,6 +1967,59 @@ Upload any document on the left panel to begin live deterministic extraction.
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+    async function runSemanticSearch(query, btnId) {
+      if (!query || !query.trim()) return;
+      if (!currentDocData) {
+        alert("Please parse a document first.");
+        return;
+      }
+      const btn = document.getElementById(btnId);
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<span class="spinner" style="width:12px;height:12px;border-width:1.5px;margin-right:4px;"></span> Searching...`;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(API_BASE + '/search-document', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({doc: currentDocData, query: query})
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.found && data.exact_quote) {
+            // Find in page using browser's native window.find
+            // exact_quote might have slight whitespace differences, so try finding it.
+            // Since window.find searches the whole page, we just pass the exact string.
+            // If the quote is too long, we can find the first 5 words.
+            let quoteToFind = data.exact_quote;
+            if (quoteToFind.length > 50) {
+               quoteToFind = quoteToFind.substring(0, 50);
+            }
+            // window.find(aString, aCaseSensitive, aBackwards, aWrapAround, aWholeWord, aSearchInFrames, aShowDialog);
+            window.getSelection().removeAllRanges();
+            const found = window.find(quoteToFind, false, false, true, false, true, false);
+            if (found) {
+                // Focus the matched element if we can, otherwise it is already highlighted!
+                setTimeout(() => {
+                   alert("Found: " + data.explanation + "\\n\\nQuote: \\"" + data.exact_quote + "\\"");
+                }, 100);
+            } else {
+                alert("Llama found this context: " + data.explanation + "\\n\\nBut the browser couldn't highlight it precisely: \\"" + data.exact_quote + "\\"");
+            }
+          } else {
+            alert("Llama says: No matching information found for your query in the document.");
+          }
+        } else {
+          alert("Search failed due to server error.");
+        }
+      } catch (err) {
+        alert("Error connecting to semantic search: " + err);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
     }
   </script>
 </body>

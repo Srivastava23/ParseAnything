@@ -1079,7 +1079,7 @@
 
         <button class="btn btn-secondary" id="btn-excel" type="button" disabled onclick="downloadExcel()">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          Download Tables (.xlsx)
+          Export Tables to Excel
         </button>
 
         <!-- PII Redaction Switch -->
@@ -1977,10 +1977,24 @@ Upload any document on the left panel to begin live deterministic extraction.
       }
 
       // 1. Try fast native substring search first (handles partial words & exact matches instantly)
-      window.getSelection().removeAllRanges();
       const nativeFound = window.find(query, false, false, true, false, true, false);
       if (nativeFound) {
-        return; // Found and highlighted by browser!
+        // Scroll the selected text into view explicitly
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0) {
+            let node = sel.getRangeAt(0).startContainer;
+            if (node.nodeType === 3) node = node.parentElement; // Get the element wrapping the text node
+            if (node) {
+                node.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }
+        
+        // Brief success feedback on the button
+        const btn = document.getElementById(btnId);
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `✅ Found Match`;
+        setTimeout(() => { btn.innerHTML = originalText; }, 1500);
+        return;
       }
 
       // 2. If native fails (typo, or semantic question), fallback to Llama

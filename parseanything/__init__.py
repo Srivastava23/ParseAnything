@@ -14,6 +14,7 @@ for mod in [
     "parseanything.formats.docx",
     "parseanything.formats.xlsx",
     "parseanything.formats.pptx",
+    "parseanything.formats.csv_parser",
     "parseanything.formats.misc",
     "parseanything.sensitive.detect",
     "parseanything.sensitive.redact",

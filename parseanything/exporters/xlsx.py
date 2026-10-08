@@ -32,9 +32,11 @@ class XlsxExporter(Exporter):
                     sources_sheet.append([sheet_name, page.number, block.id])
                     
                     if block.table and block.table.cells:
+                        min_row = min(cell.row for cell in block.table.cells)
+                        min_col = min(cell.col for cell in block.table.cells)
                         for cell in block.table.cells:
-                            r = cell.row + 1
-                            c = cell.col + 1
+                            r = (cell.row - min_row) + 1
+                            c = (cell.col - min_col) + 1
                             ws_cell = ws.cell(row=r, column=c, value=cell.text)
                             if getattr(cell, 'is_header', False):
                                 ws_cell.font = header_font

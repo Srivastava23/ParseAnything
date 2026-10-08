@@ -2004,10 +2004,10 @@ Upload any document on the left panel to begin live deterministic extraction.
             if (found) {
                 // Focus the matched element if we can, otherwise it is already highlighted!
                 setTimeout(() => {
-                   alert("Found: " + data.explanation + "\\n\\nQuote: \\"" + data.exact_quote + "\\"");
+                   alert(`Found: ${data.explanation}\n\nQuote: "${data.exact_quote}"`);
                 }, 100);
             } else {
-                alert("Llama found this context: " + data.explanation + "\\n\\nBut the browser couldn't highlight it precisely: \\"" + data.exact_quote + "\\"");
+                alert(`Llama found this context: ${data.explanation}\n\nBut the browser couldn't highlight it precisely: "${data.exact_quote}"`);
             }
           } else {
             alert("Llama says: No matching information found for your query in the document.");

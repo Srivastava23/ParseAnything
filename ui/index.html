@@ -1054,14 +1054,14 @@
 
       <div class="left-controls-wrapper">
         <!-- Compact Dropzone -->
-        <label class="dropzone" id="dropzone" for="file-input">
+        <div class="dropzone" id="dropzone">
           <div class="dropzone-graphic">📄</div>
           <div class="dropzone-title" id="dropzone-text">Drop Document(s) Here</div>
           <div class="dropzone-desc">PDF, DOCX, XLSX, PPTX, CSV, HTML, Images (Bulk supported)</div>
           <div class="browse-chip">
             <span>Browse Files</span>
           </div>
-        </label>
+        </div>
         <input type="file" id="file-input" style="width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1;" multiple>
 
         <!-- Selected Files Info -->
@@ -1293,6 +1293,10 @@ Upload any document on the left panel to begin live deterministic extraction.
     const dropzoneText = document.getElementById('dropzone-text');
     const selectedFilesBar = document.getElementById('selected-files-bar');
     const selectedFilesSummary = document.getElementById('selected-files-summary');
+
+    dropzone.addEventListener('click', () => {
+      fileInput.click();
+    });
 
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();

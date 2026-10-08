@@ -1975,6 +1975,15 @@ Upload any document on the left panel to begin live deterministic extraction.
         alert("Please parse a document first.");
         return;
       }
+
+      // 1. Try fast native substring search first (handles partial words & exact matches instantly)
+      window.getSelection().removeAllRanges();
+      const nativeFound = window.find(query, false, false, true, false, true, false);
+      if (nativeFound) {
+        return; // Found and highlighted by browser!
+      }
+
+      // 2. If native fails (typo, or semantic question), fallback to Llama
       const btn = document.getElementById(btnId);
       const originalText = btn.innerHTML;
       btn.innerHTML = `<span class="spinner" style="width:12px;height:12px;border-width:1.5px;margin-right:4px;"></span> Searching...`;
